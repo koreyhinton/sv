@@ -1,0 +1,70 @@
+#!/bin/bash
+
+. ns import "sv_*"
+
+if [[ -z "$sv_sep" ]]; then
+    sv_sep=,
+fi
+
+sep="$sv_sep"
+file="$sv_file"
+
+dir="${file%/*}"
+mkdir -p "$dir"
+touch "$file"
+if [[ $? -gt 0 || ! -f "$file" ]]; then
+    echo "sv add failed. '${file}' is not a regular file" >&2
+    exit 1
+fi
+
+header=
+wcl=$(cat "$file" | wc -l)
+exists=0
+if [[ $wcl -gt 0 ]]; then
+    header=$(cat "$file" | head -1)
+    exists=1
+fi
+
+for name in `set | grep "^sv_" | cut -d '=' -f1`
+do
+    if [[ $exists -eq 1 ]]; then
+        break
+    fi
+
+    if [[ "$name" == "sv_file" || "$name" == "sv_sep" ]]; then
+        continue
+    fi
+    # val="${!name}"
+    norm_name="${name:3}"
+
+    if [[ -z "$header" ]]; then
+        header="$norm_name"
+    else
+        header="${header}${sep}${norm_name}"
+    fi
+done
+if [[ $exists -eq 0 ]]; then
+    echo "$header" >"$file"
+fi
+
+row=
+saveIFS="$IFS"
+IFS="$sep"
+for col in $header
+do
+    name=$(set | grep "^sv_${col}=" | cut -d '=' -f1 | head -1)
+    val="${!name}"
+    if [[ -z "$row" ]]; then
+        row="$val"
+    else
+        row="${row}${sep}${val}"
+    fi
+done
+IFS="$saveIFS"
+
+echo "$row" >>"$file"
+
+sv_sep="$sep"
+sv_file="$file"
+# sv_file
+. ns export "sv_*"
