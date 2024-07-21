@@ -34,6 +34,29 @@ book_author,book_name
 Anonymous,Beowulf
 ```
 
+### load a record into sv_ variables
+
+Now you will load the record previously added to the csv file.
+
+Close your existing session by typing 'exit' and then start a new session with
+the 'sv' command.
+
+```sh
+
+# run the 'load' command
+
+sv_file=books/poems.csv
+sv_book_name=Beowulf
+. ns run load
+echo "$sv_book_author"  # column variable was automatically loaded into memory
+# uncomment to see all sv_ var names/values:
+#     set | grep '^sv_'
+```
+
+```
+Anonymous
+```
+
 ### other commands
 
 tbd

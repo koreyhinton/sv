@@ -1,0 +1,88 @@
+#!/bin/bash
+
+. ns import "sv_*"
+
+if [[ -z "$sv_sep" ]]; then
+    sv_sep=,
+fi
+
+sep="$sv_sep"
+file="$sv_file"
+
+dir="${file%/*}"
+
+if [[ ! -f "$file" ]]; then
+    echo "sv load failed. '${file}' is not a regular file" >&2
+    exit 1
+fi
+
+header=
+wcl=$(cat "$file" | wc -l)
+exists=0
+if [[ $wcl -gt 1 ]]; then
+    header=$(cat "$file" | head -1)
+    exists=1
+fi
+
+csv=$(cat "$file")
+
+lineno=1
+saveIFS="$IFS"
+IFS=$'\n'
+for line in $csv
+do
+    if [[ $exists -eq 0 ]]; then
+        break
+    fi
+
+    if [[ $lineno -eq 1 ]]; then
+        ((lineno++))
+        continue
+    fi
+
+    match=0
+
+    # all sv_ vars must match (Except for sv_file and sv_sep) record
+    # in order to load it to memory
+    for name in `set | grep "^sv_" | cut -d '=' -f1`
+    do
+        if [[ "$name" == "sv_file" || "$name" == "sv_sep" ]]; then
+            continue
+        fi
+
+        sv_match_name="$name"
+        sv_match_value="${!name}"
+        sv_match_header="$header"
+        sv_match_content="$line"
+        IFS="$saveIFS"
+        . ns run match
+        IFS=$'\n'
+        matches=$sv_matches
+        . ns delete sv_matches
+        if [[ $matches -eq 0 ]]; then
+            match=0
+            break
+        fi
+        match=1
+    done
+
+
+    if [[ $match -eq 1 ]]; then
+        idx=1  # cut fields start at index of 1
+        IFS="$sv_sep"
+        for col_value in $line
+        do
+            col_name=$(echo "$header" | cut -d "$sv_sep" -f "$idx")
+            export "sv_${col_name}=${col_value}"
+            ((idx++))
+        done
+        IFS=$'\n'
+        break
+    fi
+
+
+    ((lineno++))
+done
+IFS="$saveIFS"
+
+. ns export "sv_*"
