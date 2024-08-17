@@ -31,7 +31,7 @@ do
         break
     fi
 
-    if [[ "$name" == "sv_file" || "$name" == "sv_sep" ]]; then
+    if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" ]]; then
         continue
     fi
     # val="${!name}"

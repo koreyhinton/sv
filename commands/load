@@ -26,6 +26,8 @@ fi
 
 csv=$(cat "$file")
 
+vars=$(set | grep "^sv_" | cut -d '=' -f1)
+
 lineno=1
 saveIFS="$IFS"
 IFS=$'\n'
@@ -42,11 +44,11 @@ do
 
     match=0
 
-    # all sv_ vars must match (Except for sv_file and sv_sep) record
+    # all sv_ vars must match (Except for sv_file, sv_row, and sv_sep) record
     # in order to load it to memory
-    for name in `set | grep "^sv_" | cut -d '=' -f1`
+    for name in $vars
     do
-        if [[ "$name" == "sv_file" || "$name" == "sv_sep" ]]; then
+        if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" ]]; then
             continue
         fi
 
@@ -66,9 +68,9 @@ do
         match=1
     done
 
-
     if [[ $match -eq 1 ]]; then
         idx=1  # cut fields start at index of 1
+        sv_row=$((lineno-1))
         IFS="$sv_sep"
         for col_value in $line
         do

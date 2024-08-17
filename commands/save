@@ -1,0 +1,54 @@
+#!/bin/bash
+
+. ns import "sv_*"
+
+if [[ -z "$sv_sep" ]]; then
+    sv_sep=,
+fi
+
+sep="$sv_sep"
+file="$sv_file"
+rowno="$sv_row"
+
+dir="${file%/*}"
+
+if [[ -z "$rowno" ]]; then
+    echo "sv save row failed due to no previously loaded row found, run the load command first"
+    exit 1
+fi
+
+if [[ ! -f "$file" ]]; then
+    echo "sv save failed. '${file}' is not a regular file" >&2
+    exit 1
+fi
+
+header=
+wcl=$(cat "$file" | wc -l)
+exists=0
+if [[ $wcl -gt 1 ]]; then
+    header=$(cat "$file" | head -1)
+    exists=1
+fi
+# echo "$header"
+row=
+saveIFS="$IFS"
+IFS="$sep"
+for col in $header
+do
+    name=$(set | grep "^sv_${col}=" | cut -d '=' -f1 | head -1)
+    val="${!name}"
+    if [[ -z "$row" ]]; then
+        row="$val"
+    else
+        row="${row}${sep}${val}"
+    fi
+done
+IFS="$saveIFS"
+
+lineno=$((rowno+1))
+# echo "$lineno"
+# echo "$row"
+sed -i "${lineno} c${row}" "$sv_file"
+
+
+. ns export "sv_*"
