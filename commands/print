@@ -1,0 +1,113 @@
+#!/bin/bash
+
+. ns import "sv_*"
+
+if [[ -z "$sv_sep" ]]; then
+    sv_sep=,
+fi
+
+sep="$sv_sep"
+file="$sv_file"
+
+dir="${file%/*}"
+
+if [[ ! -f "$file" ]]; then
+    echo "sv print failed. '${file}' is not a regular file" >&2
+    exit 1
+fi
+
+header=
+wcl=$(cat "$file" | wc -l)
+exists=0
+if [[ $wcl -gt 1 ]]; then
+    header=$(cat "$file" | head -1)
+    exists=1
+fi
+
+sizes_csv=
+csv=$(tail -n +2 "$sv_file") # everything except 1st line
+
+fieldno=1
+row=
+saveIFS="$IFS"
+IFS="$sep"
+for col in $header
+do
+    max=${#col}
+    ((max+=2))
+    IFS=$'\n'
+    for line in $csv
+    do
+        test=$(echo "$line" | cut -d "$sep" -f "$fieldno")
+        test_len=${#test}
+        ((test_len+=2))
+        if [[ $test_len -gt $max ]]; then
+            max=$test_len
+        fi
+    done
+    if [[ $fieldno -eq 1 ]]; then
+        sizes_csv="$max"
+    else
+        sizes_csv="${sizes_csv},${max}"
+    fi
+    IFS="$sep"
+
+    ((fieldno++))
+done
+
+sp="                                                                                              "
+hp="----------------------------------------------------------------------------------------------"
+# echo "$sizes_csv" # 77,25,20
+border1=" "
+for colsz in $sizes_csv
+do
+    sz=$((colsz+1))
+    border1="${border1}+${hp:0:$sz}"
+done
+border1="${border1}+"
+echo
+echo "$border1"
+
+fieldno=1
+h=" |"
+for col in $header
+do
+    sz=$(echo "$sizes_csv" | cut -d "$sep" -f "$fieldno")
+    colsz=${#col}
+    sz=$((sz-colsz))
+    ((sz-=1))
+    h="${h} ${col}${sp:0:$sz} |"
+    ((fieldno++))
+done
+echo "$h"
+echo "$border1"
+echo
+echo "$border1"
+
+IFS=$'\n'
+for line in $csv
+do
+    r=" |"
+    fieldno=1
+    IFS="$sep"
+    for col in $line
+    do
+        sz=$(echo "$sizes_csv" | cut -d "$sep" -f "$fieldno")
+        colsz=${#col}
+        sz=$((sz-colsz))
+        ((sz-=1))
+        r="${r} ${col}${sp:0:$sz} |"
+        ((fieldno++))
+    done
+    IFS=$'\n'
+    echo "$r"
+    echo "$border1"
+done
+
+echo
+IFS="$saveIFS"
+
+
+
+
+. ns export "sv_*"
