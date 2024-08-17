@@ -1,0 +1,59 @@
+#!/bin/bash
+
+. ns import "sv_*"
+
+if [[ -z "$sv_sep" ]]; then
+    sv_sep=,
+fi
+
+sep="$sv_sep"
+file="$sv_file"
+
+dir="${file%/*}"
+
+
+setvals=$(set | grep '^sv_')
+vals=
+special="{ "
+IFS=$'\n'
+for var_val in $setvals
+do
+    v=$(echo "$var_val" | cut -d "=" -f1)
+    if [[ "$v" == "sv_file" || "$v" == "sv_row" || "$v" == "sv_sep" ]]; then
+        if [[ "$special" == " {" ]]; then
+            special="${special}${var_val}"
+        else
+            special="${special}${sep} ${var_val}"
+        fi
+    else
+        vals="${vals}"$'\n'"${var_val}"
+    fi
+done
+echo
+echo "${special} }"
+echo "$vals"
+
+IFS="$saveIFS"
+
+if [[ -f "$file" ]]; then
+    header=
+    wcl=$(cat "$file" | wc -l)
+    if [[ $wcl -gt 1 ]]; then
+        header=$(cat "$file" | head -1)
+    fi
+
+    saveIFS="$IFS"
+    IFS="$sep"
+    for col in $header
+    do
+        wcl=$(echo "$setvals" | grep "^sv_${col}=" | wc -l)
+        if [[ $wcl -lt 1 ]]; then
+            echo "! sv_${col} (not set)"
+        fi
+    done
+    IFS="$saveIFS"
+fi
+
+echo
+
+. ns export "sv_*"
