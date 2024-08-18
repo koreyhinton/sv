@@ -1,0 +1,99 @@
+#!/bin/bash
+
+. ns import svns_sub sv_sep
+
+# substitute quoted separators
+
+dbg=0
+
+sep="$sv_sep"
+
+str=
+
+qt=0      # qt flag indicates parser will find quoting content
+end_col=1 # end_col flag indicates parser will find a new column
+
+i=0
+
+# considerations:
+#     quoting is over once the end of a column is detected,
+#     hence these values always get assigned jointly when end_col is set to 1:
+#         end_col=1; qt=0
+
+#     quoting starts only if the end of a column has occurred
+#     (or its the first column), and " is detected,
+#     in which case this toggle happens:
+#         qt=1
+#         end_col=0
+
+saveIFS="$IFS"
+IFS=
+while [[ $i -lt ${#svns_sub} ]]
+do
+    c="${svns_sub:$i:1}"
+
+    try_end_qt_col=0
+    if [[ "$c" == '"' && qt -eq 1 ]]; then
+        if [[ "${svns_sub:$((i+1)):1}" == "$sep" ]]; then
+            try_end_qt_col=1
+        elif [[ "${svns_sub:$((i+1)):1}" == $'\n' ]]; then
+            try_end_qt_col=1
+        fi
+    fi
+
+    if [[ "$c" == '"' && $end_col -eq 1 ]]; then
+        qt=1
+        end_col=0
+        if [[ $dbg -eq 1 ]]; then echo "${c} quoting"; fi
+    elif [[ "$c" == "$sv_sep" && $qt -eq 0 ]]; then
+        end_col=1; # qt is already 0
+        if [[ $dbg -eq 1 ]]; then echo "${c} end column"; fi
+    elif [[ "$c" == "$sv_sep" && $qt -eq 1 ]]; then
+        str="${str}{sv_sep}"  # replace $sv_sep val. with the tag: {sv_sep}
+        ((i++))
+        if [[ $dbg -eq 1 ]]; then echo "{sv_sep} substitution"; fi
+        continue
+    elif [[ "$c" == $'\n' && qt -eq 1 ]]; then
+        str="${str}{sv_nl}"  # replace \n with the tag: {sv_nl}
+        if [[ $dbg -eq 1 ]]; then echo "{sv_nl} substitution"; fi
+        ((i++))
+        continue
+    elif [[ "$c" == $'\n' && qt -eq 0 ]]; then
+        end_col=1; # qt is already 0
+    elif [[ $try_end_qt_col -eq 1 ]]; then
+        iplus1=$((i+1))
+        reversed=$(echo "${svns_sub:0:$iplus1}" | rev | tail -1)
+        j=0
+        while [[ $j -lt ${#reversed} ]]
+        do
+            if [[ "${reversed:$j:1}" != '"' ]]; then
+                break
+            fi
+            ((j++))
+        done
+        # Given that
+        #     all non-bounding quotes must be in a series that is an even count
+        #     since they have all been doubled to escape each one
+        # We can conclude that
+        #     if a series of quotes occurs that is an odd number of them and
+        #     it is followed by the separator (ie: ,)
+        #     it must be the end of the column and the separator following them
+        #     must be a true column separator rather than quoted content
+        if [[ $((j % 2)) -eq 1 ]]; then
+            end_col=1; qt=0
+            if [[ $dbg -eq 1 ]]; then echo "${c} end column"; fi
+        else
+            if [[ $dbg -eq 1 ]]; then echo "${c} quoting"; fi
+        fi
+    else
+        if [[ $dbg -eq 1 ]]; then echo "${c}"; fi
+    fi
+    str="${str}${c}"
+    ((i++))
+done
+IFS="$saveIFS"
+
+if [[ $dbg -eq 1 ]]; then echo "--------"; fi
+svns_sub="$str"
+
+. ns export svns_sub sv_sep

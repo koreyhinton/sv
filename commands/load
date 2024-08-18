@@ -28,19 +28,66 @@ csv=$(cat "$file")
 
 vars=$(set | grep "^sv_" | cut -d '=' -f1)
 
-lineno=1
+svns_sub="$csv"
+. ns run sv-sep-sub
+subst="$svns_sub"
+
+full_line=
+full_line_qt_cnt=0
+lineno=1  # consider this more as a row number
 saveIFS="$IFS"
 IFS=$'\n'
-for line in $csv
+for line in $subst # $csv
 do
     if [[ $exists -eq 0 ]]; then
         break
     fi
 
+#     if [[ -n "$full_line" ]]; then
+#         full_line="$full_line"$'\n'"$line"
+#     else
+#         full_line="$line"
+#     fi
+#     svns_sub="$full_line"
+#     . ns run sv-sep-sub
+#     # echo "$full_line"
+#     # echo "Vs."
+#     echo "<<<"
+#     echo "$svns_sub"
+#     echo ">>>"
+# 
+#     # todo: make full_line so it can truly use $sep (e.g., replace quoted ',')
+# 
+#     last_col=${svns_sub##*$sep}
+#     qt_cnt=$(echo "$last_col" | tr --delete --complement '"' | wc --chars)
+#     qt_cnt=$((qt_cnt+full_line_qt_cnt))
+# 
+#     if [[ "${last_col:0:1}" == '"' && $((qt_cnt % 2)) -eq 1 ]]; then
+#         # Given that
+#         #    a newline within the column must be surrounded by a pair of column-
+#         #    bounding quotes (+2) and any double quote existing in addition
+#         #    to the boundary ones will be doubled (x*2) to escape them,
+#         # Then
+#         #    the quote count cannot be even until the parsing has encountered
+#         #    the ending double quote to pair with the starting bounding quote
+#         # And we can conclude that
+#         #     as long as there is an odd number of quotes, then the column
+#         #     will stretch at least on to the next line until the end quote
+#         #     is found (aka total column quote count has become an even count)
+#         full_line_qt_cnt=$qt_cnt
+#         continue  # without incrementing the row number
+#     fi
+
+
     if [[ $lineno -eq 1 ]]; then
         ((lineno++))
         continue
     fi
+
+    # echo "$line"
+    # echo "$svns_sub_out"
+    # echo
+
 
     match=0
 
@@ -53,7 +100,11 @@ do
         fi
 
         sv_match_name="$name"
-        sv_match_value="${!name}"
+        val="${!name}"
+        svns_sub="$val"
+        . ns run sv-sep-sub
+        # sv_match_value="${!name}"
+        sv_match_value="$svns_sub"
         sv_match_header="$header"
         sv_match_content="$line"
         IFS="$saveIFS"
@@ -75,7 +126,13 @@ do
         for col_value in $line
         do
             col_name=$(echo "$header" | cut -d "$sv_sep" -f "$idx")
-            export "sv_${col_name}=${col_value}"
+
+            svns_sub_in="$col_value"
+            . ns run sv-sep-sub-resolve
+            line_res="$"
+
+            echo "$col_name" "$svns_sub_out"
+            export "sv_${col_name}=${svns_sub_out}"
             ((idx++))
         done
         IFS=$'\n'

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+. ns import svns_sub_in sv_sep
+
+# resolve substitute quoted separators
+i=0
+
+svns_sub_out=
+while [[ $i -lt ${#svns_sub_in} ]]
+do
+
+    if [[ "${svns_sub_in:$i:8}" == "{sv_sep}" ]]; then
+        svns_sub_out="${svns_sub_out}${sv_sep}"
+        ((i+=8))
+        continue
+    elif [[ "${svns_sub_in:$i:7}" == "{sv_nl}" ]]; then
+        svns_sub_out="${svns_sub_out}"$'\n'
+        ((i+=7))
+        continue
+    else
+        svns_sub_out="${svns_sub_out}${svns_sub_in:$i:1}"
+    fi
+    ((i++))
+done
+
+. ns export svns_sub_in svns_sub_out sv_sep
