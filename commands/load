@@ -93,19 +93,21 @@ do
 
     # all sv_ vars must match (Except for sv_file, sv_row, and sv_sep) record
     # in order to load it to memory
-    for name in $vars
+    for svns_name in $vars
     do
-        if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" ]]; then
+        if [[ "$svns_name" == "sv_file" || "$svns_name" == "sv_sep" || "$svns_name" == "sv_row" ]]; then
             continue
         fi
 
-        sv_match_name="$name"
-        val="${!name}"
+        sv_match_name="$svns_name"
+        val="${!svns_name}"
         svns_sub="$val"
         . ns run sv-sep-sub
-        # sv_match_value="${!name}"
+        # sv_match_value="${!svns_name}"
         sv_match_value="$svns_sub"
+
         sv_match_header="$header"
+
         sv_match_content="$line"
         IFS="$saveIFS"
         . ns run match
@@ -129,9 +131,18 @@ do
 
             svns_sub_in="$col_value"
             . ns run sv-sep-sub-resolve
-            line_res="$"
 
-            echo "$col_name" "$svns_sub_out"
+            line_count=$(echo "$svns_sub_out" | wc -l)
+            sep_count=$(echo "$svns_sub_out" | grep "$sv_sep" | wc -l)
+            qt_count=$(echo "$svns_sub_out" | grep '"' | wc -l)
+            sum=$((line_count+sep_count+qt_count))
+            if [[ $sum -gt 1 ]]; then
+                last_content_dex=${#svns_sub_out}; ((last_content_dex-=2))
+                unquoted="${svns_sub_out:1:$last_content_dex}"
+                svns_sub_out="$unquoted"
+            fi
+
+            # echo "$col_name" "$svns_sub_out"
             export "sv_${col_name}=${svns_sub_out}"
             ((idx++))
         done

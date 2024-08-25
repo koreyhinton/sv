@@ -36,7 +36,15 @@ IFS="$sep"
 for col in $header
 do
     name=$(set | grep "^sv_${col}=" | cut -d '=' -f1 | head -1)
+
     val="${!name}"
+
+    svns_rc="$val"
+    svns_nl_repl=1
+    . ns run sv-sep-sub-rc
+    # echo "$val" "Vs" "$svns_rc_subst"
+    val="$svns_rc_subst"
+
     if [[ -z "$row" ]]; then
         row="$val"
     else
@@ -48,6 +56,13 @@ IFS="$saveIFS"
 lineno=$((rowno+1))
 # echo "$lineno"
 # echo "$row"
+
+# TODO: USE ALTERNATIVE TO IN-PLACE SED LINE REPLACE LINE
+# CURRENT IMPLEMENTATION IS BROKEN BECAUSE  {lineno} CANNOT ALWAYS BE ROW+1
+#     TODO #1 - SHOULD FIND THE REAL {lineno}, ACCOUNTING FOR PREVIOUS ROWS THAT SPAN MULTIPLE
+#               LINES (FOR QUOTED COLUMNS CONTAINING NEWLINES)
+#     TODO #2 - FIND ROW {lineno} and {linespan} BEFORE THE UPDATE TO DELETE ANY ROWS EXISTING
+#               AFTER {lineno}
 sed -i "${lineno} c${row}" "$sv_file"
 
 

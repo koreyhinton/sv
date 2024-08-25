@@ -1,0 +1,6 @@
+num,name,column_data,is_multiline
+1,escaped delimiters,"a,b,c",N
+2,multi-line phrase,"Hello
+World",Y
+3,multi-line phrase with escaped delimiter,"Hello,
+World",Y

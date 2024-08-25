@@ -28,7 +28,15 @@ fi
 for name in `set | grep "^sv_" | cut -d '=' -f1`
 do
     if [[ $exists -eq 1 ]]; then
-        break
+        content=$(cat "$file")
+        if [[ -n "$content" ]]; then
+            break
+        else
+            # file just had empty content in it,
+            # e.g, created by doing a touch or echo > command
+            header=
+            exists=0
+        fi
     fi
 
     if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" ]]; then
@@ -54,6 +62,9 @@ for col in $header
 do
     name=$(set | grep "^sv_${col}=" | cut -d '=' -f1 | head -1)
     val="${!name}"
+    svns_rc="$val"
+    . ns run sv-sep-sub-rc
+    val="$svns_rc_subst"
     if [[ -z "$row" ]]; then
         row="$val"
     else
