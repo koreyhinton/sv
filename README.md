@@ -57,6 +57,23 @@ echo "$sv_book_author"  # column variable was automatically loaded into memory
 Anonymous
 ```
 
+### save a record
+
+Edit a record that was previously added and save it.
+
+```sh
+# retrieve the record
+sv_file=books/poems
+sv_book_name=Beowulf
+. ns run load
+
+# edit
+sv_book_author="anon."
+
+# save
+. ns run save
+```
+
 ### other commands
 
 tbd

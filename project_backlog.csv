@@ -1,3 +1,4 @@
 date,done,id,todo
-Sun Aug 25 09:46:11 AM EDT 2024,N,1,in-place sed line replacement (on save) should replace with the correct line position (accounting for previous row multi-lines) and wipe lineno+N if the updating row had multi-lines
+Sat Aug 31 09:01:18 AM EDT 2024,Y,1,in-place sed line replacement (on save) should replace with the correct line position (accounting for previous row multi-lines) and wipe lineno+N if the updating row had multi-lines
 Sun Aug 25 09:58:03 AM EDT 2024,N,2,test all scenarios for double-quotes being present in a field
+Sat Aug 31 07:23:19 AM EDT 2024,N,3,print multi-line columns correctly

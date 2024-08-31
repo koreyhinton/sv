@@ -1,0 +1,45 @@
+#!/bin/bash
+
+. ns import "sv_*"
+
+# echo $sv_row
+# echo $sv_file
+
+svfn_lspan_len=1
+svfn_lspan_i=1
+
+csv=$(cat "$sv_file")
+svns_sub="$csv"
+. ns run sv-sep-sub
+subst_csv="$svns_sub"
+
+# rowno == 1 starts at line #2 (the first data line after the csv header)
+rowno=-1
+
+svfn_sep_content= svfn_sep_token= svfn_count=0
+
+saveIFS="$IFS"
+IFS=$'\n'
+for line in $subst_csv
+do
+    ((rowno++))
+
+    if [[ $rowno -eq $sv_row ]]; then
+        svfn_sep_content="$line"
+        svfn_sep_token="sv_nl"
+        . ns run sv-sep-sub-count
+        svfn_lspan_len=$svfn_count
+        break
+    fi
+
+    svfn_sep_content="$line"
+    svfn_sep_token="sv_nl"
+    . ns run sv-sep-sub-count
+    ((svfn_lspan_i+=svfn_count))
+
+done
+IFS="$saveIFS"
+
+. ns delete svfn_count
+
+. ns export svfn_lspan_len svfn_lspan_i

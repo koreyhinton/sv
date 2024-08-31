@@ -1,0 +1,24 @@
+#!/bin/bash
+
+. ns import svfn_sep_content svfn_sep_token
+
+svfn_count=1
+
+token="{${svfn_sep_token}}"
+token_len=${#token}
+i=0
+while [[ $i -lt ${#svfn_sep_content} ]]
+do
+
+    if [[ "${svfn_sep_content:$i:$token_len}" == "$token" ]]; then
+        ((svfn_count++))
+        ((i+=token_len))
+        continue
+    fi
+
+    ((i++))
+
+done
+
+. ns export svfn_count
+

@@ -174,7 +174,6 @@ enddex=${#sv_column_data}; ((enddex--))
 wcl=$(echo "$sv_column_data" | wc -l)
 enddex1=$(echo "$sv_column_data" | head -1 | wc -c); ((enddex1-=2))  # -1 and -1 newline
 eol1="${sv_column_data:$enddex1:1}" # last char of first line should have comma
-echo "$sv_column_data"
 if [[ "$sv_column_data" != $'World,\nHello' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 || "$eol1" != "," ]]; then
     echo "${test}...FAIL"
 else
