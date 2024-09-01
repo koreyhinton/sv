@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# create a simple spreadsheet
+mkdir -p sv_test
+echo > sv_test/user-scenarios.csv
+sv_file=sv_test/user-scenarios.csv
+sv_letter=a
+sv_upper=A
+. ns run add
+
+sv_letter=a
+sv_upper=A
+. ns run load
+sv_letter=c
+sv_upper=C
+. ns run add
+sv_letter=b # fix the skipped letter
+sv_upper=B # fix the skipped letter
+. ns run save # bug used to wrongly replace A->B instead of C->B
+last=$(tail -1 sv_test/user-scenarios.csv)
+test="US${sv_id} - Load Then Add Updates Row Number Test - ${sv_name}..."
+if [[ "$last" != "b,B" && "$last" != "B,b" ]]; then
+    echo "${test}...FAIL"
+else
+    echo "${test}...PASS"
+fi
+
+. ns delete last sv_letter sv_upper test
+

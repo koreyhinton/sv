@@ -24,6 +24,7 @@ else
 fi
 
 export NS_PATH="${NS_PATH}:${SV_DIR}/functions"
+export NS_PATH="${NS_PATH}:${SV_DIR}/test"
 
 . ns delete ns_installed
 

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+. ns import svskip
+
+if [[ "$svskip" != "y" && "$svskip" != "Y" ]]; then
+    printf "Running the tests will unset sv_* variable values, are you sure you want to run the tests? Y/n "
+    read y
+    if [[ "$y" != "Y" && "$y" != "y" ]]; then
+        exit 0
+    fi
+fi
+
+. ns delete "sv_*"
+. ns run test-csv
+. ns delete "sv_*"
+. ns run test-user-scenarios
+. ns delete "sv_*"
+
+. ns delete svskip
