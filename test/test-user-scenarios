@@ -18,7 +18,8 @@ sv_letter=b # fix the skipped letter
 sv_upper=B # fix the skipped letter
 . ns run save # bug used to wrongly replace A->B instead of C->B
 last=$(tail -1 sv_test/user-scenarios.csv)
-test="US${sv_id} - Load Then Add Updates Row Number Test - ${sv_name}..."
+test="US1 - Load Then Add Updates Row Number Test"
+# . ns run print
 if [[ "$last" != "b,B" && "$last" != "B,b" ]]; then
     echo "${test}...FAIL"
 else

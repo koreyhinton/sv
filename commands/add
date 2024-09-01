@@ -77,5 +77,8 @@ echo "$row" >>"$file"
 
 sv_sep="$sep"
 sv_file="$file"
-# sv_file
+
+
+. ns run load
+
 . ns export "sv_*"
