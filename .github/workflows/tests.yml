@@ -43,6 +43,8 @@ jobs:
           echo 3 && mkdir -p files
           echo 4 && cd files
           echo 5 && sv
+          echo 5.5 && ls -l "${PWD}/dot-ns/ns"
+          echo 5.51 && which ns
           echo 6 && svskip=y tests=`. ns run test`
           echo 7 && echo "$tests"
           fail_cnt=$(echo "$tests" | grep -i fail | wc -l)
