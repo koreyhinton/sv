@@ -36,6 +36,8 @@ jobs:
         run: |
           pwd
           ls -al ./
+          echo "${PWD}/dot-ns"
+          ls -al "${PWD}/dot-ns"
           echo 1 && export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
           echo 2 && . ./sv.profile
           echo 3 && mkdir -p files
