@@ -1,5 +1,5 @@
 SV_DIR="${PWD%/*}"
-
+echo "$SV_DIR"
 which ns >/dev/null 2>/dev/null
 ns_installed=$?; ns_installed=$((ns_installed+1)); ns_installed=$((ns_installed%2))
 
