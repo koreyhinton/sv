@@ -34,15 +34,13 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          ls -al ../
           ls -al ./
-          find ../ -name 'ns'
-          export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
-          . sv.profile
-          mkdir -p files
-          cd files
-          sv
-          svskip=y tests=`. ns run test`
-          echo "$tests"
+          echo 1 && export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
+          echo 2 && . sv.profile
+          echo 3 && mkdir -p files
+          echo 4 && cd files
+          echo 5 && sv
+          echo 6 && svskip=y tests=`. ns run test`
+          echo 7 && echo "$tests"
           fail_cnt=$(echo "$tests" | grep -i fail | wc -l)
           if [[ $fail_cnt -gt 0 ]]; then false; else true; fi
