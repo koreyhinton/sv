@@ -1,8 +1,6 @@
 SV_DIR="${PWD%/*}"
-echo "$SV_DIR"
 which ns >/dev/null 2>/dev/null
 ns_installed=$?; ns_installed=$((ns_installed+1)); ns_installed=$((ns_installed%2))
-echo "ns_installed: ${ns_installed}"
 if [[ $ns_installed -eq 0 ]]; then
     echo "Error: sv requires dot-ns" >&2
     echo "Resolve steps:" >&2
@@ -12,12 +10,9 @@ if [[ $ns_installed -eq 0 ]]; then
     echo '* repository: https://github.com/koreyhinton/dot-ns' >&2
     exit 1
 fi
-echo "(1) NS_SHELL_PID: ${NS_SHELL_PID}"
 if [[ -z "$NS_SHELL_PID" ]]; then
     . ns init
 fi
-echo "(2) NS_SHELL_PID: ${NS_SHELL_PID}"
-echo "NS_PATH: ${NS_PATH}"
 
 if [[ -z "$NS_PATH" ]]; then
     export NS_PATH="${SV_DIR}/commands"
@@ -28,9 +23,7 @@ fi
 export NS_PATH="${NS_PATH}:${SV_DIR}/functions"
 export NS_PATH="${NS_PATH}:${SV_DIR}/test"
 
-echo "delete ns_installed var"
-# . ns delete ns_installed
-echo "deleted ns_installed var"
+. ns delete ns_installed
 
 echo "sv program"
 echo $'\t' type \'exit\' to end this session
