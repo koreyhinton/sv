@@ -32,7 +32,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          git clone git@github.com:koreyhinton/dot-ns.git
+          git clone https://github.com/koreyhinton/dot-ns.git
           export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
           . sv.profile
           cd files
