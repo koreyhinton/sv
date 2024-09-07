@@ -28,7 +28,18 @@ exists=0
 if [[ $wcl -gt 1 ]]; then
     header=$(cat "$file" | head -1)
     exists=1
+
+    # save guard
+    svfn_sep="$sv_sep"
+    svfn_minuend=$(set | grep "^sv_*" | cut -d "=" -f1 | tr '\n' "$sv_sep")
+    svfn_subtrahend="$header"
+    . ns run sv-diff-count
+    if [[ $svfn_diff_count -gt 1 ]]; then
+        echo "Unable to save 2+ new columns to existing file" >&2
+        exit 1
+    fi
 fi
+
 # echo "$header"
 row_csv=
 saveIFS="$IFS"

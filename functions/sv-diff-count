@@ -1,0 +1,34 @@
+#!/bin/bash
+
+. ns import svfn_sep svfn_minuend svfn_subtrahend
+
+# #minuend{a,b,c,d} - #subtrahend{a,b,c} = 1
+
+minuend=0
+subtrahend=0
+
+saveIFS="$IFS"
+IFS="$svfn_sep"
+for col in $svfn_minuend
+do
+    if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" || "$name" == "file" || "$name" == "sep" || "$name" == "row" ]]; then
+        continue
+    fi
+
+    ((minuend++))
+done
+
+for col in $svfn_subtrahend
+do
+    if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" || "$name" == "file" || "$name" == "sep" || "$name" == "row" ]]; then
+        continue
+    fi
+
+    ((subtrahend++))
+done
+
+IFS="$saveIFS"
+
+svfn_diff_count=$((minuend-subtrahend))
+
+. ns export svfn_diff_count
