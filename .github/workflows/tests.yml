@@ -32,7 +32,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
         run: |
-          ls -al
+          ls -al ../
+          ls -al ./
+          find ../ -name 'ns'
           export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
           . sv.profile
           cd files
