@@ -40,9 +40,9 @@ jobs:
           echo "${PWD}/dot-ns"
           ls -al "${PWD}/dot-ns"
           echo 1 && export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
-          echo 2 && . ./sv.profile
-          echo 3 && mkdir -p files
-          echo 4 && cd files
+          echo 2 && mkdir -p files
+          echo 3 && cd files
+          echo 4 && . ../sv.profile
           echo 5 && sv
           echo 5.5 && ls -l "${repo}/dot-ns/ns"
           echo 5.51 && which ns
