@@ -39,9 +39,10 @@ jobs:
           find ../ -name 'ns'
           export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
           . sv.profile
+          mkdir -p files
           cd files
-          svskip=y
-          tests=$(. ns run test)
+          sv
+          svskip=y tests=`. ns run test`
           echo "$tests"
           fail_cnt=$(echo "$tests" | grep -i fail | wc -l)
           if [[ $fail_cnt -gt 0 ]]; then false; else true; fi
