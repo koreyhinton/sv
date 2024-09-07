@@ -29,7 +29,7 @@ export NS_PATH="${NS_PATH}:${SV_DIR}/functions"
 export NS_PATH="${NS_PATH}:${SV_DIR}/test"
 
 echo "delete ns_installed var"
-. ns delete ns_installed
+# . ns delete ns_installed
 echo "deleted ns_installed var"
 
 echo "sv program"
