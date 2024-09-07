@@ -36,7 +36,7 @@ jobs:
         run: |
           ls -al ./
           echo 1 && export PATH="${PATH}:${PWD}:${PWD}/dot-ns"
-          echo 2 && . sv.profile
+          echo 2 && . ./sv.profile
           echo 3 && mkdir -p files
           echo 4 && cd files
           echo 5 && sv
