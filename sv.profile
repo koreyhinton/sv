@@ -26,7 +26,7 @@ fi
 export NS_PATH="${NS_PATH}:${SV_DIR}/functions"
 export NS_PATH="${NS_PATH}:${SV_DIR}/test"
 
-. ns delete ns_installed
+# . ns delete ns_installed
 
 echo "sv program"
 echo $'\t' type \'exit\' to end this session
