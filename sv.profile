@@ -17,6 +17,7 @@ if [[ -z "$NS_SHELL_PID" ]]; then
     . ns init
 fi
 echo "(2) NS_SHELL_PID: ${NS_SHELL_PID}"
+echo "NS_PATH: ${NS_PATH}"
 
 if [[ -z "$NS_PATH" ]]; then
     export NS_PATH="${SV_DIR}/commands"
@@ -27,7 +28,9 @@ fi
 export NS_PATH="${NS_PATH}:${SV_DIR}/functions"
 export NS_PATH="${NS_PATH}:${SV_DIR}/test"
 
+echo "delete ns_installed var"
 . ns delete ns_installed
+echo "deleted ns_installed var"
 
 echo "sv program"
 echo $'\t' type \'exit\' to end this session
