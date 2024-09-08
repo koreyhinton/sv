@@ -1,0 +1,39 @@
+#!/bin/bash
+
+. ns import svfn_sep svfn_minuend svfn_subtrahend
+
+# #minuend{a,b,c,d} - #subtrahend{a,b,c} = 1
+
+minuend=0
+subtrahend=0
+
+saveIFS="$IFS"
+IFS="$svfn_sep"
+for col in $svfn_minuend
+do
+    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" ]]; then
+        continue
+    fi
+    # echo "A: ${col}"
+    ((minuend++))
+done
+
+for col in $svfn_subtrahend
+do
+    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" ]]; then
+        continue
+    fi
+    # echo "B: ${col}"
+    ((subtrahend++))
+done
+
+IFS="$saveIFS"
+
+svfn_diff_count=$((minuend-subtrahend))
+
+
+a=$(echo "$svfn_minuend" | tr "$svfn_sep" '\n' | sed "s/^sv_//" | grep -v '^row$' | grep -v '^file$' | grep -v '^sep$' | sort)
+b=$(echo "$svfn_subtrahend" | tr "$svfn_sep" '\n' | sed "s/^sv_//" | grep -v '^row$' | grep -v '^file$' | grep -v '^sep$' | sort)
+svfn_diff=`comm -3 <(echo "$a") <(echo "$b")`
+
+. ns export svfn_diff_count svfn_diff

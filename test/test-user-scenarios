@@ -28,3 +28,61 @@ fi
 
 . ns delete last sv_letter sv_upper test
 
+test="US2 - Save With New Var Adds A New Column Test"  # other rows get empty
+
+sv_letter=a
+. ns run load
+sv_lower=a  # new column
+. ns run save
+first=$(head -1 "$sv_file")
+last=$(tail -1 "$sv_file")
+if [[ "$first" != "a,a,A" && "$first" != "a,A,a" ]]; then
+    if [[ "$last" != ",b,B" && "$last" != ",B,b" ]]; then
+        echo "${test}...FAIL"
+    else
+        echo "${test}...PASS"
+    fi
+else
+    echo "${test}...PASS"
+fi
+
+test="US3 - Add With New Var Adds A New Column Test"
+
+sv_letter=c
+sv_lower=c
+sv_upper=C
+sv_flag=Y  # new column
+. ns run add
+first=$(head -1 "$sv_file")
+last=$(tail -1 "$sv_file")
+if [[ "$first" != ",a,a,A" && "$first" != ",a,A,a" ]]; then
+    if [[ "$last" != "Y,c,c,C" && "$last" != "Y,c,C,c" ]]; then
+        echo "${test}...FAIL"
+    else
+        echo "${test}...PASS"
+    fi
+else
+    echo "${test}...PASS"
+fi
+
+# cat "$sv_file"
+# 
+test="US3 - Add Or Save 2+ New Vars Fails to Add Column Test" # protects against adding extra columns that were previously loaded from another file and never unset
+
+sv_letter=d
+sv_lower=d
+sv_upper=D
+sv_flag=Y
+sv_new_column=d # new column
+sv_new_columnd=d # new column
+. ns run add 2>/dev/null
+. ns run save 2>/dev/null
+
+d_col_cnt=$(cat "$sv_file" | grep "d" | wc -l)
+if [[ $d_col_cnt -gt 0 ]]; then
+    echo "${test}...FAIL"
+else
+    echo "${test}...PASS"
+fi
+
+# echo "$sv_file"

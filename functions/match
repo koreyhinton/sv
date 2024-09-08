@@ -1,0 +1,45 @@
+#!/bin/bash
+
+. ns import svfn_match_name svfn_match_value svfn_match_header svfn_match_content svfn_sep
+
+# echo "$svfn_match_header"
+# echo "$svfn_match_content"
+
+i=0
+idx=-1
+saveIFS="$IFS"
+IFS="$svfn_sep"
+for col_name in $svfn_match_header
+do
+    # echo "${col_name} == ${svfn_match_name:3}"
+    # substring at 3rd char to ignore the leading 'sv_' in the name
+    if [[ "$col_name" == "${svfn_match_name:3}" ]]; then
+        idx=$i
+        break
+    fi
+    ((i++))
+done
+
+i=0
+svfn_matches=0
+for col_value in $svfn_match_content
+do
+
+    svns_sub="$col_value"
+    . ns run sv-sep-sub
+    cur_value="$svns_sub"
+
+    # echo "$i vs $idx , $cur_value vs $svfn_match_value"
+    if [[ $i -eq $idx && "$cur_value" == "$svfn_match_value" ]]; then
+        svfn_matches=1
+        break
+    fi
+    ((i++))
+done
+IFS="$saveIFS"
+
+
+
+. ns export svfn_matches svfn_sep
+
+
