@@ -1,0 +1,51 @@
+#!/bin/bash
+
+. ns import sv_sep sv_file svfn_newcol svfn_rowno "sv_*"
+
+newcol=$(echo "$svfn_newcol" | tr -d '\n')
+rowno=$svfn_rowno
+
+# echo "newcol: $newcol"
+# echo "rowno: $rowno"
+
+l=1  # line number
+r=0
+csv=$(cat "$sv_file")
+svns_sub="$csv"
+. ns run sv-sep-sub
+subst_csv="$svns_sub"
+saveIFS="$IFS"
+IFS=$'\n'
+for line in $subst_csv
+do
+    svns_sub_in="$line"
+    . ns run sv-sep-sub-resolve
+    res_line="$svns_sub_out"
+
+    sv_row=$r
+    . ns run linespan
+
+    single_line=$(head -"$l" "$sv_file" | tail -1)
+
+    if [[ $((rowno+1)) -eq $r ]]; then
+        # echo "row found: ${line}"
+        varname="sv_${newcol}"
+        svname=$varname
+        sed -i "${l} c${!varname}${sv_sep}${single_line}" "$sv_file"
+        ((l+=svfn_lspan_len))
+        ((r++))
+        continue
+    elif [[ $r -eq 0 ]]; then
+        sed -i "${l} c${newcol}${sv_sep}${single_line}" "$sv_file"
+    else
+        sed -i "${l} c${sv_sep}${single_line}" "$sv_file"
+    fi
+    ((l+=svfn_lspan_len))
+    ((r++))
+done
+IFS="$saveIFS"
+
+
+. ns export sv_sep sv_file
+
+

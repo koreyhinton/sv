@@ -65,22 +65,24 @@ else
     echo "${test}...PASS"
 fi
 
+# cat "$sv_file"
+# 
 test="US3 - Add Or Save 2+ New Vars Fails to Add Column Test" # protects against adding extra columns that were previously loaded from another file and never unset
 
 sv_letter=d
 sv_lower=d
 sv_upper=D
 sv_flag=Y
-sv_new_column=d
-. ns run add
-sv_letter=c
-. ns run load
-sv_flag=Y
-sv_new_columnd=d
-. ns run save
+sv_new_column=d # new column
+sv_new_columnd=d # new column
+. ns run add 2>/dev/null
+. ns run save 2>/dev/null
+
 d_col_cnt=$(cat "$sv_file" | grep "d" | wc -l)
 if [[ $d_col_cnt -gt 0 ]]; then
     echo "${test}...FAIL"
 else
     echo "${test}...PASS"
 fi
+
+# echo "$sv_file"

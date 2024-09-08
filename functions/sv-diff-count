@@ -11,19 +11,19 @@ saveIFS="$IFS"
 IFS="$svfn_sep"
 for col in $svfn_minuend
 do
-    if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" || "$name" == "file" || "$name" == "sep" || "$name" == "row" ]]; then
+    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" ]]; then
         continue
     fi
-
+    # echo "A: ${col}"
     ((minuend++))
 done
 
 for col in $svfn_subtrahend
 do
-    if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" || "$name" == "file" || "$name" == "sep" || "$name" == "row" ]]; then
+    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" ]]; then
         continue
     fi
-
+    # echo "B: ${col}"
     ((subtrahend++))
 done
 
@@ -31,4 +31,9 @@ IFS="$saveIFS"
 
 svfn_diff_count=$((minuend-subtrahend))
 
-. ns export svfn_diff_count
+
+a=$(echo "$svfn_minuend" | tr "$svfn_sep" '\n' | sed "s/^sv_//" | grep -v '^row$' | grep -v '^file$' | grep -v '^sep$' | sort)
+b=$(echo "$svfn_subtrahend" | tr "$svfn_sep" '\n' | sed "s/^sv_//" | grep -v '^row$' | grep -v '^file$' | grep -v '^sep$' | sort)
+svfn_diff=`comm -3 <(echo "$a") <(echo "$b")`
+
+. ns export svfn_diff_count svfn_diff

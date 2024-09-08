@@ -17,27 +17,20 @@ if [[ $? -gt 0 || ! -f "$file" ]]; then
     exit 1
 fi
 
+# the code assumes that the header line does not have special CSV parsing rules,
+# so just assume no quoted commas and it can split on the comma (or $sv_sep)
 header=
 wcl=$(cat "$file" | wc -l)
-exists=0
+hdr_exists=0
 if [[ $wcl -gt 0 ]]; then
     header=$(cat "$file" | head -1)
-    exists=1
-
-    # save guard
-    svfn_sep="$sv_sep"
-    svfn_minuend=$(set | grep "^sv_*" | cut -d "=" -f1 | tr '\n' "$sv_sep")
-    svfn_subtrahend="$header"
-    . ns run sv-diff-count
-    if [[ $svfn_diff_count -gt 1 ]]; then
-        echo "Unable to add row with 2+ new columns for existing file" >&2
-        exit 1
-    fi
+    hdr_exists=1
 fi
 
+# set header to sv_{col_names} if it could not find a header line in the file
 for name in `set | grep "^sv_" | cut -d '=' -f1`
 do
-    if [[ $exists -eq 1 ]]; then
+    if [[ $hdr_exists -eq 1 ]]; then
         content=$(cat "$file")
         if [[ -n "$content" ]]; then
             break
@@ -45,7 +38,7 @@ do
             # file just had empty content in it,
             # e.g, created by doing a touch or echo > command
             header=
-            exists=0
+            hdr_exists=0
         fi
     fi
 
@@ -61,8 +54,23 @@ do
         header="${header}${sep}${norm_name}"
     fi
 done
-if [[ $exists -eq 0 ]]; then
+
+newcol=
+
+if [[ $hdr_exists -eq 0 ]]; then
     echo "$header" >"$file"
+else
+    # add guard
+    svfn_sep="$sv_sep"
+    svfn_minuend=$(set | grep "^sv_" | cut -d "=" -f1 | tr '\n' "$sv_sep")
+    svfn_subtrahend="$header"
+    . ns run sv-diff-count
+    if [[ $svfn_diff_count -gt 1 ]]; then
+        echo "Unable to add row with 2+ new columns for existing file" >&2
+        exit 1
+    elif [[ $svfn_diff_count -eq 1 ]]; then
+        newcol="$svfn_diff"
+    fi
 fi
 
 row=
@@ -88,7 +96,30 @@ echo "$row" >>"$file"
 sv_sep="$sep"
 sv_file="$file"
 
+savenewcol=
+save_new_col_val=
 
+if [[ -n "$newcol" ]]; then
+    nc=$(echo "$newcol" | tr -d '\n')
+    savenewcol="sv_${nc}"
+    save_new_col_val="${!savenewcol}"
+    . ns delete $savenewcol  # load won't get the correct row number if there's an extra column
+fi
 . ns run load
+
+varname="$savenewcol"
+varval="$save_new_col_val"
+
+if [[ -n "$newcol" ]]; then
+    nc=$(echo "$newcol" | tr -d '\n')
+    # eval "$savenewcol"="\$$save_new_col_val"
+    declare $varname=$varval  # sv_${nc}="$save_new_col_val"
+    save_sv_row="$sv_row"
+    ((sv_row--))
+    svfn_newcol="$newcol"
+    svfn_rowno="$sv_row"
+    . ns run add-col
+    sv_row="$save_sv_row"
+fi
 
 . ns export "sv_*"

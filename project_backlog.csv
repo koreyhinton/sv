@@ -2,7 +2,7 @@ date,done,id,todo
 Sat Aug 31 09:01:18 AM EDT 2024,Y,1,in-place sed line replacement (on save) should replace with the correct line position (accounting for previous row multi-lines) and wipe lineno+N if the updating row had multi-lines
 Sun Aug 25 09:58:03 AM EDT 2024,N,2,test all scenarios for double-quotes being present in a field
 Sat Aug 31 07:23:19 AM EDT 2024,N,3,print multi-line columns correctly
-Sun Aug 25 09:58:03 AM EDT 2024,N,4,add a new column when adding or saving with a new sv_ value detected
+Sun Sep  8 09:35:10 AM EDT 2024,Y,4,add a new column when adding or saving with a new sv_ value detected
 Sun Sep  1 07:21:26 AM EDT 2024,N,5,bug: print is not respecting comma inside a quoted column
 Sun Sep  1 07:22:57 AM EDT 2024,N,6,filterable print by specifying sv_ values existing in multiple rows
 Sun Sep  1 08:13:40 AM EDT 2024,Y,7,"bug: load, then add keeps sv_row number from the load but should be updated with add"

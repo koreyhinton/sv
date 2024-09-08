@@ -36,6 +36,7 @@ full_line=
 full_line_qt_cnt=0
 lineno=1  # consider this more as a row number
 saveIFS="$IFS"
+
 IFS=$'\n'
 for line in $subst # $csv
 do
@@ -99,21 +100,23 @@ do
             continue
         fi
 
-        sv_match_name="$svns_name"
+        svfn_match_name="$svns_name"
         val="${!svns_name}"
         svns_sub="$val"
         . ns run sv-sep-sub
-        # sv_match_value="${!svns_name}"
-        sv_match_value="$svns_sub"
+        # svfn_match_value="${!svns_name}"
+        svfn_match_value="$svns_sub"
 
-        sv_match_header="$header"
+        svfn_match_header="$header"
+        svfn_sep="$sv_sep"
 
-        sv_match_content="$line"
+        svfn_match_content="$line"
+
         IFS="$saveIFS"
         . ns run match
         IFS=$'\n'
-        matches=$sv_matches
-        . ns delete sv_matches
+        matches=$svfn_matches
+        . ns delete svfn_matches
         if [[ $matches -eq 0 ]]; then
             match=0
             break
