@@ -67,7 +67,7 @@ fi
 
 # cat "$sv_file"
 # 
-test="US3 - Add Or Save 2+ New Vars Fails to Add Column Test" # protects against adding extra columns that were previously loaded from another file and never unset
+test="US4 - Add Or Save 2+ New Vars Does Not Add Column Test" # protects against adding extra columns that were previously loaded from another file and never unset
 
 sv_letter=d
 sv_lower=d
@@ -75,8 +75,8 @@ sv_upper=D
 sv_flag=Y
 sv_new_column=d # new column
 sv_new_columnd=d # new column
-. ns run add 2>/dev/null
-. ns run save 2>/dev/null
+. ns run add 2>/dev/null || true
+. ns run save 2>/dev/null || true
 
 d_col_cnt=$(cat "$sv_file" | grep "d" | wc -l)
 if [[ $d_col_cnt -gt 0 ]]; then
