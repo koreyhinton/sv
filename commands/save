@@ -22,13 +22,28 @@ if [[ ! -f "$file" ]]; then
     exit 1
 fi
 
+newcol=
+
 header=
 wcl=$(cat "$file" | wc -l)
 exists=0
 if [[ $wcl -gt 1 ]]; then
     header=$(cat "$file" | head -1)
     exists=1
+
+    # save guard
+    svfn_sep="$sv_sep"
+    svfn_minuend=$(set | grep "^sv_" | cut -d "=" -f1 | tr '\n' "$sv_sep")
+    svfn_subtrahend="$header"
+    . ns run sv-diff-count
+    if [[ $svfn_diff_count -gt 1 ]]; then
+        echo "Unable to save 2+ new columns to existing file" >&2
+        exit 1
+    elif [[ $svfn_diff_count -eq 1 ]]; then
+        newcol="$svfn_diff"
+    fi
 fi
+
 # echo "$header"
 row_csv=
 saveIFS="$IFS"
@@ -69,5 +84,15 @@ fi
 sed -i "${lineno} c${row_csv}" "$sv_file"
 
 . ns delete svfn_lspan_i svfn_lspan_len
+
+
+
+if [[ -n "$newcol" ]]; then
+    save_sv_row="$sv_row"
+    svfn_newcol="$newcol"
+    . ns run add-col
+    sv_row="$save_sv_row"
+fi
+
 
 . ns export "sv_*"
