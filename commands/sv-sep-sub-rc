@@ -10,7 +10,8 @@ if [[ -z svns_nl_repl ]]; then
     svns_nl_repl=0
 fi
 
-svns_rc_subst="$svns_rc"
+svns_rc_subst=
+# "$svns_rc"
 
 # substitute for a specific row.column
 
@@ -32,7 +33,7 @@ do
     if [[ "$c" == '"' ]]; then
         str="${str}${c}"  # double all quotes
     fi
-    ((i++))        
+    ((i++))
 done
 
 if [[ $has_sep -gt 0 || $has_qt -gt 0 || $has_nl -gt 1 ]]; then

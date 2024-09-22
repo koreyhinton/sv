@@ -4,3 +4,7 @@ num,name,column_data,is_multiline
 World",Y
 3,multi-line phrase with escaped delimiter,"Hello,
 World",Y
+4,two escaped double quotes,"""""",N
+5,escaped double quote and newline,"""
+",Y
+6,escaped double quote and delimiter,""",",N

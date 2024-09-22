@@ -18,9 +18,10 @@ saveIFS="$IFS"
 IFS=$'\n'
 for line in $subst_csv
 do
-    svns_sub_in="$line"
-    . ns run sv-sep-sub-resolve
-    res_line="$svns_sub_out"
+    # Commented out: sv-sep-sub-resolve (appears res_line and svns_sub_out aren't being used)
+    # svns_sub_in="$line"
+    # . ns run sv-sep-sub-resolve
+    # res_line="$svns_sub_out"
 
     sv_row=$r
     . ns run linespan

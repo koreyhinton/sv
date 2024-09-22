@@ -17,6 +17,10 @@ do
         svns_sub_out="${svns_sub_out}"$'\n'
         ((i+=7))
         continue
+    elif [[ "${svns_sub_in:$i:7}" == "{sv_qt}" ]]; then
+        svns_sub_out="${svns_sub_out}\""  # just one quote since this gets loaded to memory var (and not to file)
+        ((i+=7))
+        continue
     else
         svns_sub_out="${svns_sub_out}${svns_sub_in:$i:1}"
     fi
