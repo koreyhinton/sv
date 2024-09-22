@@ -34,7 +34,13 @@ do
 
     try_end_qt_col=0
     if [[ "$c" == '"' && qt -eq 1 ]]; then
-        if [[ "${svns_sub:$((i+1)):1}" == "$sep" ]]; then
+        if [[ $((i+1)) -eq ${#svns_sub} ]]; then
+            try_end_qt_col=1
+        elif [[ "${svns_sub:$i:2}" == "\"\"" ]]; then
+            str="${str}{sv_qt}"
+            ((i+=2)) # ((i+=3))
+            continue
+        elif [[ "${svns_sub:$((i+1)):1}" == "$sep" ]]; then
             try_end_qt_col=1
         elif [[ "${svns_sub:$((i+1)):1}" == $'\n' ]]; then
             try_end_qt_col=1
@@ -79,9 +85,15 @@ do
         #     it is followed by the separator (ie: ,)
         #     it must be the end of the column and the separator following them
         #     must be a true column separator rather than quoted content
-        if [[ $((j % 2)) -eq 1 ]]; then
+        if [[ $((j % 2)) -eq 1 || "${svns_sub:$i:2}" == "\"${sv_sep}" ]]; then  # just 1 quote should have counted as odd
             end_col=1; qt=0
             if [[ $dbg -eq 1 ]]; then echo "${c} end column"; fi
+        elif [[ $((i+1)) -eq ${#svns_sub} && "${c}" == "\"" ]]; then
+            # example scenario: just pass a single column in
+            #                   e.g., str == "myvalue"
+            end_col=1; qt=0
+            str="${str}\""
+            break
         else
             if [[ $dbg -eq 1 ]]; then echo "${c} quoting"; fi
         fi

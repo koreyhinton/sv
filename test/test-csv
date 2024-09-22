@@ -180,6 +180,46 @@ else
     echo "${test}...PASS"
 fi
 
+. ns delete sv_name sv_column_data sv_is_multiline
+
+((sv_num++))
+sv_file=sv_test/data.csv
+num=4
+vals=',,,"{sv_qt}{sv_qt}","{sv_qt}{sv_nl}","{sv_qt}{sv_sep}"'
+expect=
+cs=10
+
+while [[ $num -lt 7 ]]
+do
+    sv_num="$num"
+    . ns run load
+
+    expect=$(echo "$vals" | cut -d , -f${num})
+    test="CS${cs} - Load Test - ${sv_name}..."  # [C]sv-spec [S]cenario
+
+    # put expected data through (partial save) pipeline to get
+    # single line row symbol syntax for test comparison
+    
+    svns_rc="$sv_column_data"
+    svns_nl_repl=0  # 1 puts in '\n' as text, whereas 0 keeps an actual newline
+    . ns run sv-sep-sub-rc  # surrounds with quotes, doubles inner content quotes, etc
+
+    svns_sub="$svns_rc_subst"
+    . ns run sv-sep-sub  # replaces with symbols (e.g., {sv_qt})
+
+    # end (partial save) pipeline
+
+    if [[ "$expect" != "$svns_sub" ]]; then
+        echo "${test}...FAIL"
+    else
+        echo "${test}...PASS"
+    fi
+    ((cs++))
+    ((num++))
+    . ns delete svns_rc svns_nl_repl svns_rc_subst svns_sub sv_name sv_column_data sv_is_multiline
+done
+
+. ns delete num vals expect
 
 . ns delete "sv_*"
 
