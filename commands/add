@@ -73,23 +73,45 @@ else
     fi
 fi
 
+abort=0
+abort_col=
+colno=1
 row=
 saveIFS="$IFS"
 IFS="$sep"
 for col in $header
 do
     name=$(set | grep "^sv_${col}=" | cut -d '=' -f1 | head -1)
+    if [[ -z "$name" ]]; then
+        abort_col="$col"
+        abort=1
+        break
+    fi
     val="${!name}"
     svns_rc="$val"
     . ns run sv-sep-sub-rc
     val="$svns_rc_subst"
-    if [[ -z "$row" ]]; then
+
+    # Must account for the empty column boundary scenarios:
+    #     ,1
+    #     1,
+    # Prepending column with separator (and previous sep. cols)
+    # for  colno > 1 condition instead of erroneous -z "$row" condition
+    # since the start column could be empty:
+    #     ,1
+    if [[ $colno -eq 1 ]]; then
         row="$val"
     else
         row="${row}${sep}${val}"
     fi
+    ((colno++))
 done
 IFS="$saveIFS"
+
+if [[ $abort -gt 0 ]]; then
+    echo "Error: aborting sep. val. add command due to 'sv_${abort_col}' variable not being set" 1>&2
+    exit 1
+fi
 
 echo "$row" >>"$file"
 
@@ -105,7 +127,7 @@ if [[ -n "$newcol" ]]; then
     save_new_col_val="${!savenewcol}"
     . ns delete $savenewcol  # load won't get the correct row number if there's an extra column
 fi
-. ns run load
+. ns run load  # load will assign sv_row
 
 varname="$savenewcol"
 varval="$save_new_col_val"
