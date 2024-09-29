@@ -10,4 +10,4 @@ Sat Sep  7 07:43:34 AM EDT 2024,Y,8,add gh action yaml workflow to run the autom
 Sun Sep 22 08:03:46 AM EDT 2024,N,9,test all save scenarios for double quotes being present in a field
 Sun Sep 22 08:03:46 AM EDT 2024,N,10,test all add scenarios for double quotes being present in a field
 Sun Sep 22 08:15:21 AM EDT 2024,Y,11,refactor non-commands to the functions directory
-Sat Sep 28 07:40:00 AM EDT 2024,N,12,"fix omitted column not failing to add bug, fix empty column not being inserted and ensure no-op re-load/re-save"
+Sun Sep 29 07:24:00 AM EDT 2024,Y,12,"fix omitted column not failing to add bug, fix empty column not being inserted and ensure no-op re-load/re-save"

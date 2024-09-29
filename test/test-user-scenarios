@@ -119,7 +119,7 @@ echo "title,other,stuff" >> "$sv_file"
 sv_title="My Title: My subtitle, and stuff"
 sv_other="my data"
 # sv_stuff gets omitted
-. ns run add # 2>&1 1>>/dev/null
+. ns run add 2>/dev/null
 ec=$?
 wcl=$(cat "$sv_file" | wc -l)
 
