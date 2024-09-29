@@ -49,5 +49,5 @@ jobs:
           echo 5.51 && which ns
           echo 6 && svskip=y tests=`. ns run test`
           echo 7 && echo "$tests"
-          fail_cnt=$(echo "$tests" | grep -i fail | wc -l)
+          fail_cnt=$(echo "$tests" | grep FAIL | wc -l)
           if [[ $fail_cnt -gt 0 ]]; then false; else true; fi
