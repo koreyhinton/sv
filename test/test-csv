@@ -66,26 +66,13 @@ fi
 
 . ns delete sv_name sv_column_data sv_is_multiline
 
-sv_num=1
-. ns run load
-sv_file=sv_test/data2.csv
-. ns run add
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Add Test - ${sv_name}..."
-f1=$(echo "$sv_column_data" | cut -d ',' -f1)
-f2=$(echo "$sv_column_data" | cut -d ',' -f2)
-f3=$(echo "$sv_column_data" | cut -d ',' -f3)
-f="${f1}${f2}${f3}"  # abc
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
+. ns run test-csv-4
 
 . ns delete sv_name sv_column_data sv_is_multiline
 
-((sv_num++))
+
+
+sv_num=1; ((sv_num++))
 sv_file=sv_test/data.csv
 . ns run load
 sv_file=sv_test/data2.csv

@@ -12,3 +12,4 @@ Sun Sep 22 08:03:46 AM EDT 2024,N,10,test all add scenarios for double quotes be
 Sun Sep 22 08:15:21 AM EDT 2024,Y,11,refactor non-commands to the functions directory
 Sun Sep 29 07:24:00 AM EDT 2024,Y,12,"fix omitted column not failing to add bug, fix empty column not being inserted and ensure no-op re-load/re-save"
 Sat Oct  5 06:25:37 AM EDT 2024,Y,13,"optionally, print values on load"
+Sat Oct  5 06:54:56 AM EDT 2024,Y,14,failure to load should be reported to user

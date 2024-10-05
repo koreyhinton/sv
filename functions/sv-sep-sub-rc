@@ -28,6 +28,10 @@ do
         str="${str}\n"
         ((i++))
         continue
+    elif [[ "$c" == "," ]]; then
+        str="${str}{sv_sep}"
+        ((i++))
+        continue
     fi
     str="${str}${c}"
     if [[ "$c" == '"' ]]; then

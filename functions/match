@@ -9,7 +9,7 @@ i=0
 idx=-1
 saveIFS="$IFS"
 IFS="$svfn_sep"
-for col_name in $svfn_match_header
+for col_name in ${svfn_match_header}
 do
     # echo "${col_name} == ${svfn_match_name:3}"
     # substring at 3rd char to ignore the leading 'sv_' in the name
@@ -24,11 +24,7 @@ i=0
 svfn_matches=0
 for col_value in $svfn_match_content
 do
-
-    svns_sub="$col_value"
-    . ns run sv-sep-sub
-    cur_value="$svns_sub"
-
+    cur_value="$col_value"
     # echo "$i vs $idx , $cur_value vs $svfn_match_value"
     if [[ $i -eq $idx && "$cur_value" == "$svfn_match_value" ]]; then
         svfn_matches=1
