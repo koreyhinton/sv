@@ -11,6 +11,7 @@ if [[ "$svskip" != "y" && "$svskip" != "Y" ]]; then
 fi
 
 . ns delete "sv_*"
+SV_VERBOSE=0
 . ns run test-csv
 . ns delete "sv_*"
 . ns run test-user-scenarios

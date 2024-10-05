@@ -26,6 +26,8 @@ fi
 export NS_PATH="${NS_PATH}:${SV_DIR}/functions"
 export NS_PATH="${NS_PATH}:${SV_DIR}/test"
 
+export SV_VERBOSE=1
+
 # . ns delete ns_installed
 
 echo "sv program"
