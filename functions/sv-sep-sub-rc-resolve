@@ -25,11 +25,7 @@ while [[ $i -lt ${#svns_rc} ]]
 do
     c="${svns_rc:$i:1}"
     if [[ $svns_nl_repl -eq 1 && "$c" == $'\n' ]]; then
-        str="${str}{sv_nl}" # str="${str}\n"
-        ((i++))
-        continue
-    elif [[ "$c" == "$sv_sep" ]]; then
-        str="${str}{sv_sep}"
+        str="${str}\n"
         ((i++))
         continue
     fi

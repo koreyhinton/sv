@@ -107,7 +107,9 @@ do
         svfn_match_name="$svns_name"
         val="${!svns_name}"
         svns_rc="$val"
+        svns_nl_repl=1
         . ns run sv-sep-sub-rc  # a,b -> "a{sv_sep}b"
+        #                       # Hello$'\n'World -> Hello{sv_nl}World
         svfn_match_value="${svns_rc_subst}"
 
         svfn_match_header="$header"
