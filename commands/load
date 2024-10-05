@@ -6,6 +6,8 @@ if [[ -z "$sv_sep" ]]; then
     sv_sep=,
 fi
 
+: ${SV_VERBOSE:=0}
+
 sep="$sv_sep"
 file="$sv_file"
 
@@ -157,5 +159,9 @@ do
     ((lineno++))
 done
 IFS="$saveIFS"
+
+if [[ $SV_VERBOSE -eq 1 ]]; then
+    . ns run values
+fi
 
 . ns export "sv_*"
