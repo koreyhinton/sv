@@ -1,0 +1,35 @@
+: ${SV_VERBOSE:=1}
+single_run=0
+if [[ $SV_VERBOSE -eq 1 ]]; then
+    SV_VERBOSE=0
+    single_run=1
+    . ns delete "sv_*"
+    echo "WARNING: running single test cleared your sv_* variables" >&2
+    mkdir -p sv_test
+    cp ../test/data.csv sv_test/
+    echo > sv_test/data2.csv
+fi
+
+sv_num=3
+sv_file=sv_test/data.csv
+
+. ns run load
+sv_file=sv_test/data2.csv
+. ns run add
+. ns delete sv_name sv_column_data sv_is_multiline
+. ns run load
+test="CS6 - Row ${sv_num} Add Test - ${sv_name}..."
+enddex=${#sv_column_data}; ((enddex--))
+wcl=$(echo "$sv_column_data" | wc -l) # should have newline
+wcq=$(echo "$sv_column_data" | grep '"' | wc -l) # and no quotes (not in the loaded version)
+enddex1=$(echo "$sv_column_data" | head -1 | wc -c); ((enddex1-=2))  # -1 and -1 newline
+eol1="${sv_column_data:$enddex1:1}" # last char of first line should have comma
+if [[ $wcq -ne 0 && -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 || "$eol1" != "," ]]; then
+    echo "${test}...FAIL"
+else
+    echo "${test}...PASS"
+fi
+
+if [[ $single_run -eq 1 ]]; then
+    . ns delete "sv_*"
+fi

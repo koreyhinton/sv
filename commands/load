@@ -31,8 +31,10 @@ csv=$(cat "$file")
 vars=$(set | grep "^sv_" | cut -d '=' -f1)
 
 svns_sub="$csv"
-. ns run sv-sep-sub
+. ns run sv-sep-sub  # a,b -> a{sv_sep}b
 subst="$svns_sub"
+
+matched_once=0
 
 full_line=
 full_line_qt_cnt=0
@@ -104,10 +106,11 @@ do
 
         svfn_match_name="$svns_name"
         val="${!svns_name}"
-        svns_sub="$val"
-        . ns run sv-sep-sub
-        # svfn_match_value="${!svns_name}"
-        svfn_match_value="$svns_sub"
+        svns_rc="$val"
+        svns_nl_repl=1
+        . ns run sv-sep-sub-rc  # a,b -> "a{sv_sep}b"
+        #                       # Hello$'\n'World -> Hello{sv_nl}World
+        svfn_match_value="${svns_rc_subst}"
 
         svfn_match_header="$header"
         svfn_sep="$sv_sep"
@@ -147,11 +150,12 @@ do
                 svns_sub_out="$unquoted"
             fi
 
-            # echo "$col_name" "$svns_sub_out"
+            # echo "$col_name" "$svns_sub_out">&2
             export "sv_${col_name}=${svns_sub_out}"
             ((idx++))
         done
         IFS=$'\n'
+        matched_once=1
         break
     fi
 
@@ -162,6 +166,10 @@ IFS="$saveIFS"
 
 if [[ $SV_VERBOSE -eq 1 ]]; then
     . ns run values
+fi
+if [[ ${matched_once} -eq 0 ]]; then
+    echo "Error: unable to load the specified sv row" 1>&2
+    exit 1
 fi
 
 . ns export "sv_*"

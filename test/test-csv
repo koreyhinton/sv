@@ -66,62 +66,15 @@ fi
 
 . ns delete sv_name sv_column_data sv_is_multiline
 
-sv_num=1
-. ns run load
-sv_file=sv_test/data2.csv
-. ns run add
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Add Test - ${sv_name}..."
-f1=$(echo "$sv_column_data" | cut -d ',' -f1)
-f2=$(echo "$sv_column_data" | cut -d ',' -f2)
-f3=$(echo "$sv_column_data" | cut -d ',' -f3)
-f="${f1}${f2}${f3}"  # abc
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
+. ns run test-csv-4
 
 . ns delete sv_name sv_column_data sv_is_multiline
 
-((sv_num++))
-sv_file=sv_test/data.csv
-. ns run load
-sv_file=sv_test/data2.csv
-. ns run add
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Add Test - ${sv_name}..."
-enddex=${#sv_column_data}; ((enddex--))
-wcl=$(echo "$sv_column_data" | wc -l)
-wcq=$(echo "$sv_column_data" | grep '"' | wc -l) # and no quotes (not in the loaded version)
-if [[ -z "$sv_name" || $wcq -ne 0 || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
+. ns run test-csv-5
 
 . ns delete sv_name sv_column_data sv_is_multiline
 
-((sv_num++))
-sv_file=sv_test/data.csv
-. ns run load
-sv_file=sv_test/data2.csv
-. ns run add
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Add Test - ${sv_name}..."
-enddex=${#sv_column_data}; ((enddex--))
-wcl=$(echo "$sv_column_data" | wc -l) # should have newline
-wcq=$(echo "$sv_column_data" | grep '"' | wc -l) # and no quotes (not in the loaded version)
-enddex1=$(echo "$sv_column_data" | head -1 | wc -c); ((enddex1-=2))  # -1 and -1 newline
-eol1="${sv_column_data:$enddex1:1}" # last char of first line should have comma
-if [[ $wcq -ne 0 && -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 || "$eol1" != "," ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
+. ns run test-csv-6
 
 . ns delete sv_name sv_column_data sv_is_multiline
 sv_file=sv_test/data2.csv
@@ -162,27 +115,11 @@ fi
 
 . ns delete sv_name sv_column_data sv_is_multiline
 
-((sv_num++))
-sv_file=sv_test/data2.csv
-. ns run load
-sv_column_data=$'World,\nHello' # swap lines
-. ns run save
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Save Test - ${sv_name}..."
-enddex=${#sv_column_data}; ((enddex--))
-wcl=$(echo "$sv_column_data" | wc -l)
-enddex1=$(echo "$sv_column_data" | head -1 | wc -c); ((enddex1-=2))  # -1 and -1 newline
-eol1="${sv_column_data:$enddex1:1}" # last char of first line should have comma
-if [[ "$sv_column_data" != $'World,\nHello' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 || "$eol1" != "," ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
+. ns run test-csv-9
 
 . ns delete sv_name sv_column_data sv_is_multiline
 
-((sv_num++))
+sv_num=3; ((sv_num++))
 sv_file=sv_test/data.csv
 num=4
 vals=',,,"{sv_qt}{sv_qt}","{sv_qt}{sv_nl}","{sv_qt}{sv_sep}"'
@@ -202,7 +139,7 @@ do
     
     svns_rc="$sv_column_data"
     svns_nl_repl=0  # 1 puts in '\n' as text, whereas 0 keeps an actual newline
-    . ns run sv-sep-sub-rc  # surrounds with quotes, doubles inner content quotes, etc
+    . ns run sv-sep-sub-rc-resolve  # surrounds with quotes, doubles inner content quotes, etc
 
     svns_sub="$svns_rc_subst"
     . ns run sv-sep-sub  # replaces with symbols (e.g., {sv_qt})
