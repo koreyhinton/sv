@@ -3,12 +3,39 @@
 . ns import svskip
 
 if [[ "$svskip" != "y" && "$svskip" != "Y" ]]; then
-    printf "Running the tests will unset sv_* variable values, are you sure you want to run the tests? Y/n "
+    printf "Running the tests will unset sv_* and vc_* variable values, are you sure you want to run the tests? Y/n "
     read y
     if [[ "$y" != "Y" && "$y" != "y" ]]; then
         exit 0
     fi
 fi
+
+# VARCHECK
+
+svdir="${BASH_SOURCE[0]}" # sv/test/test
+svdir="${svdir%/*}"  # sv/test
+svdir="${svdir%/*}"  # sv
+vc_file="${svdir}/commands/save"
+vc_args='sv_*'",sv_sep"
+
+
+. ns run test-vc
+
+vc_file="${svdir}/commands/add"
+. ns run test-vc
+
+vc_file="${svdir}/commands/print"
+. ns run test-vc
+
+vc_file="${svdir}/commands/load"
+. ns run test-vc
+
+vc_file="${svdir}/commands/values"
+. ns run test-vc
+
+. ns delete vc_file vc_args
+
+# SV TESTS
 
 . ns delete "sv_*"
 SV_VERBOSE=0

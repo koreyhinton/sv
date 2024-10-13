@@ -23,6 +23,15 @@ else
     export NS_PATH="${NS_PATH}:${SV_DIR}/commands"
 fi
 
+nsprofile=$(which ns)
+cd "${nsprofile%/*}/js"
+npm install
+npm run build
+cd -
+nsprofile="${nsprofile%/*}/ns.profile"
+. "$nsprofile"
+
+
 export NS_PATH="${NS_PATH}:${SV_DIR}/functions"
 export NS_PATH="${NS_PATH}:${SV_DIR}/test"
 

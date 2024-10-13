@@ -1,0 +1,26 @@
+#!/bin/bash
+
+. ns import vc_file vc_args
+
+saveIFS="$IFS"
+IFS='
+'
+err_type=
+for err_line in `. ns run varcheck 2>&1`
+do
+
+    if [[ "$err_line" =~ "> " ]]; then
+        :
+    elif [[ -n "$err_type" ]]; then
+        echo "FAIL ($vc_file): ${err_type} - ${err_line}"
+        err_type=
+    elif [[ -z "$err_line" ]]; then
+        :
+    else
+        err_type="$err_line"
+    fi
+done
+IFS="$saveIFS"
+
+
+. ns export vc_file vc_args
