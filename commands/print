@@ -27,6 +27,20 @@ fi
 sizes_csv=
 csv=$(tail -n +2 "$sv_file") # everything except 1st line
 
+# DETERMINE COLSIZE VALUES LOOP BLOCK
+# STORED AS A SINGLE CSV LINE
+# example:
+#     a,b,c
+#     100,10,1
+#     10,1,1
+#
+#     -> 3,2,1
+#
+# foreach column
+#    foreach line in file
+#        TODO: ^USE SYMBOLIC REPRESENTATION TO SUPPORT MULTILINE COLUMNS
+#        get column of that line and update the max in the single csv line
+#            TODO: ^FOREACH LINE IN COLUMN TO FIND MAX OF MULT. LINES
 fieldno=1
 row=
 saveIFS="$IFS"
@@ -84,6 +98,13 @@ echo "$border1"
 echo
 echo "$border1"
 
+# PRINT DATA ROW LOOP BLOCK
+# foreach line
+#    foreach column in line
+#        format column as a part of r (row) print
+#            TODO: ^ITERATE LINES IN COLUMN
+#            TODO:  & USE A DICTIONARY TO PRINT PREVIOUS COLUMN LINE EXTENSIONS
+#    print r (row)
 IFS=$'\n'
 for line in $csv
 do
