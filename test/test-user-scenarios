@@ -129,5 +129,7 @@ else
     echo "${test}...PASS"
 fi
 
+. ns run test-user-scenarios-print-mult-line-comma
+
 . ns delete "sv_*"
 . ns delete ec

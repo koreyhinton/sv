@@ -1,0 +1,53 @@
+
+# TEST: MULTI-LINE COLUMN AND ADDITIONALLY HAS AN ESCAPED COMMA
+test="US7 - Prints extended column with escaped comma"
+# This is a single data row that extends two lines (and comma is escaped):
+# "a,
+# b"
+
+# which should print like an extended (multi-line) column:
+# |----|
+# | a, |
+# | b  |
+# |----|
+
+# and should NOT print as a multi-row:
+# |---|
+# | a |
+# |---|
+# | b |
+# |---|
+
+nl=$'\n'
+qt=$'"'
+csv=
+csv="${csv}val${nl}"
+csv="${csv}${qt}a,${nl}b${qt}${nl}"
+
+exp=$'\n'
+exp="${exp}+-----+${nl}"
+exp="${exp}| val |${nl}"
+exp="${exp}+-----+${nl}"
+exp="${exp}"$'\n'
+exp="${exp}+-----+${nl}"
+exp="${exp}| a,  |${nl}"
+exp="${exp}| b   |${nl}"
+exp="${exp}+-----+${nl}"
+exp="${exp}"$'\n'
+
+# echo "$csv"
+# echo "$exp"
+
+
+sv_file="sv_test/user-scenarios-print-mult-line-comma.csv"
+echo "${csv}" > "$sv_file"
+actual=$(. ns run print)
+expect="$exp"
+
+if [[ "$expect" != "$actual" ]]; then
+    echo "${test}...FAIL"
+else
+    echo "${test}...PASS"
+fi
+
+
