@@ -1,0 +1,45 @@
+#!/bin/bash
+
+. ns import svns_rc sv_sep svns_nl_repl
+
+if [[ -z "$sv_sep" ]]; then
+    sv_sep=,
+fi
+
+if [[ -z svns_nl_repl ]]; then
+    svns_nl_repl=0
+fi
+
+svns_rc_subst=
+# "$svns_rc"
+
+# substitute for a specific row.column
+
+has_sep=$(echo "$svns_rc" | grep "$sv_sep" | wc -l)
+has_qt=$(echo "$svns_rc" | grep '"' | wc -l)
+has_nl=$(echo "$svns_rc" | wc -l)
+
+str=
+i=0
+while [[ $i -lt ${#svns_rc} ]]
+do
+    c="${svns_rc:$i:1}"
+    if [[ $svns_nl_repl -eq 1 && "$c" == $'\n' ]]; then
+        str="${str}\n"
+        ((i++))
+        continue
+    fi
+    str="${str}${c}"
+    if [[ "$c" == '"' ]]; then
+        str="${str}${c}"  # double all quotes
+    fi
+    ((i++))
+done
+
+if [[ $has_sep -gt 0 || $has_qt -gt 0 || $has_nl -gt 1 ]]; then
+    str="\"${str}\""
+fi
+
+svns_rc_subst="$str"
+
+. ns export svns_rc_subst sv_sep

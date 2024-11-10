@@ -55,7 +55,7 @@ do
 
     svns_rc="$val"
     svns_nl_repl=1
-    . ns run sv-sep-sub-rc-resolve  # a{sv_sep}b -> "a,b"
+    . ns run sv-sep-sub-rc-escape  # a{sv_sep}b -> "a,b"
     # echo "$val" "Vs" "$svns_rc_subst"
     val="$svns_rc_subst"
 

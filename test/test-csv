@@ -139,7 +139,7 @@ do
     
     svns_rc="$sv_column_data"
     svns_nl_repl=0  # 1 puts in '\n' as text, whereas 0 keeps an actual newline
-    . ns run sv-sep-sub-rc-resolve  # surrounds with quotes, doubles inner content quotes, etc
+    . ns run sv-sep-sub-rc-escape  # surrounds with quotes, doubles inner content quotes, etc
 
     svns_sub="$svns_rc_subst"
     . ns run sv-sep-sub  # replaces with symbols (e.g., {sv_qt})

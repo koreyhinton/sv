@@ -89,7 +89,7 @@ do
     fi
     val="${!name}"
     svns_rc="$val"
-    . ns run sv-sep-sub-rc-resolve
+    . ns run sv-sep-sub-rc-escape
     val="$svns_rc_subst"
 
     # Must account for the empty column boundary scenarios:
