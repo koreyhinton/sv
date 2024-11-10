@@ -2,6 +2,8 @@
 
 . ns import "sv_*"
 
+: ${SV_VERBOSE:=1}
+
 if [[ -z "$sv_sep" ]]; then
     sv_sep=,
 fi
@@ -27,6 +29,21 @@ fi
 sizes_csv=
 csv=$(tail -n +2 "$sv_file") # everything except 1st line
 
+# DETERMINE COLSIZE VALUES LOOP BLOCK
+# STORED AS A SINGLE CSV LINE
+# example:
+#     a,b,c
+#     100,10,1
+#     10,1,1
+#
+#     -> 3,2,1
+#
+# foreach column
+#    foreach line in file
+#        get column of that line and update the max in the single csv line
+svns_sub="$csv"
+. ns run sv-sep-sub  # a,b -> a{sv_sep}b
+subst="$svns_sub"; . ns delete svns_sub
 fieldno=1
 row=
 saveIFS="$IFS"
@@ -36,14 +53,26 @@ do
     max=${#col}
     ((max+=2))
     IFS=$'\n'
-    for line in $csv
+    for line in $subst
     do
-        test=$(echo "$line" | cut -d "$sep" -f "$fieldno")
-        test_len=${#test}
-        ((test_len+=2))
-        if [[ $test_len -gt $max ]]; then
-            max=$test_len
-        fi
+        symbolic_col=$(echo "$line" | cut -d "$sep" -f "$fieldno")
+        svns_rc="$symbolic_col"
+        # TODO: check sv_test/data.csv, num==5, does not display with final newline!
+        #       use a placeholder symbol to allow it to take up another line
+        svns_nl_repl=0
+        . ns run sv-sep-sub-rc-resolve  # a{sv_sep}b -> "a,b"
+        real_col="$svns_rc_subst"; . ns delete svns_rc svns_nl_repl svns_rc_subst
+        for inner_line in $real_col
+        do
+            test="$inner_line"
+            # echo "$inner_line"
+            test_len=${#test}
+            ((test_len+=2))
+            if [[ $test_len -gt $max ]]; then
+                max=$test_len
+            fi
+        done
+        . ns delete real_col
     done
     if [[ $fieldno -eq 1 ]]; then
         sizes_csv="$max"
@@ -61,7 +90,7 @@ hp="----------------------------------------------------------------------------
 border1=" "
 for colsz in $sizes_csv
 do
-    sz=$((colsz+1))
+    sz=$((colsz))
     border1="${border1}+${hp:0:$sz}"
 done
 border1="${border1}+"
@@ -73,9 +102,11 @@ h=" |"
 for col in $header
 do
     sz=$(echo "$sizes_csv" | cut -d "$sep" -f "$fieldno")
+    # echo "sizes: ${sizes_csv}"
     colsz=${#col}
     sz=$((sz-colsz))
-    ((sz-=1))
+    ((sz-=2)) # -1 for leading space, -1 for trailing space
+    # echo "size: ${sz}"
     h="${h} ${col}${sp:0:$sz} |"
     ((fieldno++))
 done
@@ -84,20 +115,74 @@ echo "$border1"
 echo
 echo "$border1"
 
+# PRINT DATA ROW LOOP BLOCK
+# foreach line
+#    foreach column in line
+#        format column as a part of r (row) print
+#    print r (row)
+kv=
 IFS=$'\n'
-for line in $csv
+for symbolic_line in $subst
 do
     r=" |"
     fieldno=1
+    max_inner_line_count=0
     IFS="$sep"
-    for col in $line
+    for symbolic_col in $symbolic_line
     do
-        sz=$(echo "$sizes_csv" | cut -d "$sep" -f "$fieldno")
-        colsz=${#col}
-        sz=$((sz-colsz))
-        ((sz-=1))
-        r="${r} ${col}${sp:0:$sz} |"
+        
+        svns_rc="$symbolic_col"
+        svns_nl_repl=0
+        . ns run sv-sep-sub-rc-resolve  # a{sv_sep}b -> "a,b"
+        real_col="$svns_rc_subst"; . ns delete svns_rc svns_nl_repl svns_rc_subst
+        # echo "SYM COL TEST: ${symbolic_col}"
+        # echo "REAL COL TEST: ${real_col}"
+        inner_line_count=0
+        IFS=$'\n'
+        for inner_line in $real_col
+        do
+            ((inner_line_count++))
+
+            kv_key="f${fieldno}l${inner_line_count}"
+            kv_val="$inner_line"
+            # echo "WROTE COL ${kv_key}: ${kv_val}"
+            . ns run kv-write
+        done
+        if [[ $inner_line_count -gt $max_inner_line_count ]]; then
+            max_inner_line_count=$inner_line_count
+        fi
+        IFS="$sep"
         ((fieldno++))
+    done
+
+    # l => line
+    # f => field
+    l=1
+    while [[ $l -le $max_inner_line_count ]]
+    do
+        f=1
+        while [[ $f -lt $fieldno ]]
+        do
+            sz=$(echo "$sizes_csv" | cut -d "$sep" -f "$f")
+            # echo "$kv"
+            kv_key="f${f}l${l}"
+            . ns run kv-take
+            col="$kv_val"
+            # echo "RETRIEVED COL ${kv_key}: ${col}"
+            colsz=${#col}
+            # echo "${sizes_csv} ${sep} ${fieldno}"
+            sz=$((sz-colsz))
+            ((sz-=2))  # -1 for leading space, -1 for trailing space
+            # echo "$sizes_csv"
+            # echo "$sz"
+            if [[ $l -eq 1 || $f -gt 1 ]]; then
+                r="${r} ${col}${sp:0:$sz} |"
+            else
+                r="${r}"$'\n'" | ${col}${sp:0:$sz} |"
+            fi
+            ((f++))
+        done
+        ((l++))
     done
     IFS=$'\n'
     echo "$r"
@@ -107,7 +192,8 @@ done
 echo
 IFS="$saveIFS"
 
-
-. ns run values
+if [[ $SV_VERBOSE -eq 1 ]]; then
+    . ns run values
+fi
 
 . ns export "sv_*"

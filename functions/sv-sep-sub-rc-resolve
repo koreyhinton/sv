@@ -15,30 +15,43 @@ svns_rc_subst=
 
 # substitute for a specific row.column
 
-has_sep=$(echo "$svns_rc" | grep "$sv_sep" | wc -l)
-has_qt=$(echo "$svns_rc" | grep '"' | wc -l)
-has_nl=$(echo "$svns_rc" | wc -l)
+has_sep=$(echo "$svns_rc" | grep "{sv_sep}" | wc -l)
+has_qt=$(echo "$svns_rc" | grep '{sv_qt}' | wc -l)
+has_nl=$(echo "$svns_rc" | grep '{sv_nl}' |wc -l)
 
+last_index=${#svns_rc}; ((last_index--))
 str=
 i=0
 while [[ $i -lt ${#svns_rc} ]]
 do
     c="${svns_rc:$i:1}"
-    if [[ $svns_nl_repl -eq 1 && "$c" == $'\n' ]]; then
+    if [[ $i -eq 0 && "$c" == '"' || $i -eq ${last_index} && "$c" == '"' ]]; then
+        if [[ "${has_sep}${has_qt}${has_nl}" != "000" ]]; then
+            ((i++))
+            continue
+        fi
+    fi
+    if [[ $svns_nl_repl -eq 1 && "${svns_rc:$i:7}" == "{sv_nl}" ]]; then
         str="${str}\n"
-        ((i++))
+        ((i+=7))
+        continue
+    elif [[ "${svns_rc:$i:8}" == "{sv_sep}" ]]; then
+        str="${str}${sv_sep}"
+        ((i+=8))
+        continue
+    elif [[ "${svns_rc:$i:7}" == "{sv_qt}" ]]; then
+        str="${str}"$'"'
+        ((i+=7))
+        continue
+    elif [[ "${svns_rc:$i:7}" == "{sv_nl}" ]]; then
+        str="${str}"$'\n'
+        ((i+=7))
         continue
     fi
     str="${str}${c}"
-    if [[ "$c" == '"' ]]; then
-        str="${str}${c}"  # double all quotes
-    fi
     ((i++))
 done
 
-if [[ $has_sep -gt 0 || $has_qt -gt 0 || $has_nl -gt 1 ]]; then
-    str="\"${str}\""
-fi
 
 svns_rc_subst="$str"
 
