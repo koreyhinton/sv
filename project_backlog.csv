@@ -1,9 +1,9 @@
 date,done,id,todo
 Sat Aug 31 09:01:18 AM EDT 2024,Y,1,in-place sed line replacement (on save) should replace with the correct line position (accounting for previous row multi-lines) and wipe lineno+N if the updating row had multi-lines
 Sun Sep 22 08:03:03 AM EDT 2024,Y,2,test all load scenarios for double-quotes being present in a field
-Sat Nov  9 06:45:14 AM EST 2024,N,3,print multi-line columns correctly
+Sun Nov 10 09:24:37 AM EST 2024,Y,3,print multi-line columns correctly
 Sun Sep  8 09:35:10 AM EDT 2024,Y,4,add a new column when adding or saving with a new sv_ value detected
-Sat Nov  9 06:58:02 AM EST 2024,N,5,bug: print is not respecting comma inside a quoted column
+Sun Nov 10 09:24:37 AM EST 2024,Y,5,bug: print is not respecting comma inside a quoted column
 Sun Sep  1 07:22:57 AM EDT 2024,N,6,filterable print by specifying sv_ values existing in multiple rows
 Sun Sep  1 08:13:40 AM EDT 2024,Y,7,"bug: load, then add keeps sv_row number from the load but should be updated with add"
 Sat Sep  7 07:43:34 AM EDT 2024,Y,8,add gh action yaml workflow to run the automated tests
@@ -13,3 +13,4 @@ Sun Sep 22 08:15:21 AM EDT 2024,Y,11,refactor non-commands to the functions dire
 Sun Sep 29 07:24:00 AM EDT 2024,Y,12,"fix omitted column not failing to add bug, fix empty column not being inserted and ensure no-op re-load/re-save"
 Sat Oct  5 06:25:37 AM EDT 2024,Y,13,"optionally, print values on load"
 Sat Oct  5 06:54:56 AM EDT 2024,Y,14,failure to load should be reported to user
+Sun Nov 10 09:26:00 AM EST 2024,N,15,implement newline at end of column (see print file)
