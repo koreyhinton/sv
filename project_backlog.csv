@@ -14,3 +14,4 @@ Sun Sep 29 07:24:00 AM EDT 2024,Y,12,"fix omitted column not failing to add bug,
 Sat Oct  5 06:25:37 AM EDT 2024,Y,13,"optionally, print values on load"
 Sat Oct  5 06:54:56 AM EDT 2024,Y,14,failure to load should be reported to user
 Sun Nov 10 09:26:00 AM EST 2024,N,15,implement newline at end of column (see print file)
+Sun Nov 17 08:00:42 AM EST 2024,N,16,bug: sv-print header-only csv file correctly
