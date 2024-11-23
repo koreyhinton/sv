@@ -2,6 +2,10 @@
 
 . ns import vc_file vc_args
 
+nspath=$(which ns)
+dir="$PWD"
+cd "${nspath%/*}/js"
+
 saveIFS="$IFS"
 IFS='
 '
@@ -22,5 +26,6 @@ do
 done
 IFS="$saveIFS"
 
+cd "$dir"
 
 . ns export vc_file vc_args
