@@ -1,0 +1,13 @@
+
+
+test="US8 - Prints header-only csv file correctly"
+sv_file="sv_test/user-scenarios-print-mult-line-comma.csv"
+echo "col_a,col_b,col_c" > "$sv_file"
+expect=" | col_a | col_b | col_c |"
+actual=$(. ns run print | grep col_a)
+
+if [[ "$expect" != "$actual" ]]; then
+    echo "${test}...FAIL"
+else
+    echo "${test}...PASS"
+fi
