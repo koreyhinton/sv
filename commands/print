@@ -21,14 +21,18 @@ fi
 header=
 wcl=$(cat "$file" | wc -l)
 exists=0
-if [[ $wcl -gt 1 ]]; then
+
+if [[ $wcl -ge 1 ]]; then
     header=$(cat "$file" | head -1)
     exists=1
 fi
 
 sizes_csv=
 csv=$(tail -n +2 "$sv_file") # everything except 1st line
-
+has_rows=1
+if [[ -z "$csv" ]]; then
+    has_rows=0
+fi
 # DETERMINE COLSIZE VALUES LOOP BLOCK
 # STORED AS A SINGLE CSV LINE
 # example:
@@ -112,6 +116,9 @@ do
 done
 echo "$h"
 echo "$border1"
+if [[ $has_rows -eq 0 ]]; then
+    border1=
+fi
 echo
 echo "$border1"
 

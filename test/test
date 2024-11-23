@@ -18,6 +18,11 @@ svdir="${svdir%/*}"  # sv
 vc_file="${svdir}/commands/save"
 vc_args='sv_*'",sv_sep"
 
+nspath=$(which ns)
+cd "${nspath%/*}/js"
+npm install
+npm run build
+cd -
 
 . ns run test-vc
 
@@ -38,7 +43,8 @@ vc_file="${svdir}/commands/values"
 # SV TESTS
 
 . ns delete "sv_*"
-SV_VERBOSE=0
+export SV_VERBOSE=0
+
 . ns run test-csv
 . ns delete "sv_*"
 . ns run test-user-scenarios
