@@ -1,0 +1,31 @@
+
+test="US9 - Filter print XOR strategy"
+
+sv_str=$(
+cat <<'EOF'
+col_a,col_b
+1,1
+0,0
+1,0
+EOF
+)
+
+sv_filter=xor
+sv_col_a=1
+sv_col_b=1
+
+export SV_VERBOSE=0
+outp=$(. ns run print)
+actual=$(echo "$outp" | grep 1)
+wcl=$(echo "$outp" | grep 1 | wc -l)  # should only have 1 match
+#      " | col_a | col_b |
+expect=" | 1     | 0     |"
+# echo "$outp"
+
+if [[ "$expect" != "$actual" || $wcl -ne 1 ]]; then
+    echo "${test}...FAIL"
+else
+    echo "${test}...PASS"
+fi
+
+. ns delete sv_str sv_filter

@@ -1,0 +1,11 @@
+
+. ns import sv_file sv_str
+
+if [[ -n "${sv_str}" ]]; then
+    sv_cat="${sv_str}"
+else
+    sv_cat=$(cat "$sv_file")
+fi
+
+. ns export sv_file sv_str sv_cat
+

@@ -133,5 +133,11 @@ fi
 
 . ns run test-user-scenarios-print-header-only-csv
 
+. ns run test-user-scenarios-print-filter-xor
+
+. ns run test-user-scenarios-print-filter-or
+
+. ns run test-user-scenarios-print-filter-and
+
 . ns delete "sv_*"
 . ns delete ec

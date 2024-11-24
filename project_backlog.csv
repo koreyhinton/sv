@@ -4,7 +4,7 @@ Sun Sep 22 08:03:03 AM EDT 2024,Y,2,test all load scenarios for double-quotes be
 Sun Nov 10 09:24:37 AM EST 2024,Y,3,print multi-line columns correctly
 Sun Sep  8 09:35:10 AM EDT 2024,Y,4,add a new column when adding or saving with a new sv_ value detected
 Sun Nov 10 09:24:37 AM EST 2024,Y,5,bug: print is not respecting comma inside a quoted column
-Sun Sep  1 07:22:57 AM EDT 2024,N,6,filterable print by specifying sv_ values existing in multiple rows
+Sun Nov 24 08:32:03 AM EST 2024,Y,6,filterable print by specifying sv_ values existing in multiple rows
 Sun Sep  1 08:13:40 AM EDT 2024,Y,7,"bug: load, then add keeps sv_row number from the load but should be updated with add"
 Sat Sep  7 07:43:34 AM EDT 2024,Y,8,add gh action yaml workflow to run the automated tests
 Sun Sep 22 08:03:46 AM EDT 2024,N,9,test all save scenarios for double quotes being present in a field
@@ -16,4 +16,7 @@ Sat Oct  5 06:54:56 AM EDT 2024,Y,14,failure to load should be reported to user
 Sun Nov 10 09:26:00 AM EST 2024,N,15,implement newline at end of column (see print file)
 Sat Nov 23 08:10:43 AM EST 2024,Y,16,bug: sv-print header-only csv file correctly
 Sat Nov 23 06:06:05 AM EST 2024,N,17,keep collapsing/shortening longest column (or break that column on newlines) until it fits
-Sat Nov 23 06:20:29 AM EST 2024,N,18,"bug: add expects an initial (files) directory, instead allow any regular file"
+Sun Nov 24 08:32:03 AM EST 2024,N,18,"bug: add expects an initial (files) directory, instead allow any regular file"
+Sun Nov 24 06:16:17 AM EST 2024,N,19,speed up print algorithm
+Sun Nov 24 08:32:03 AM EST 2024,N,20,add csv variable (DI) with script that can read from filesystem or variable (allows easier testing)
+Sun Nov 24 08:32:03 AM EST 2024,N,21,"All scripts to ignore sv_filter, sv_str, and sv_cat"

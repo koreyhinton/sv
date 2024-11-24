@@ -9,30 +9,105 @@ if [[ -z "$sv_sep" ]]; then
 fi
 
 sep="$sv_sep"
-file="$sv_file"
 
-dir="${file%/*}"
-
-if [[ ! -f "$file" ]]; then
-    echo "sv print failed. '${file}' is not a regular file" >&2
+if [[ -z "${sv_str}" && ! -f "${sv_file}" ]]; then
+    echo "sv print failed. '${sv_file}' is not a regular file" >&2
     exit 1
 fi
 
 header=
-wcl=$(cat "$file" | wc -l)
+. ns run sv-cat
+wcl=$(echo "$sv_cat" | wc -l)
 exists=0
 
 if [[ $wcl -ge 1 ]]; then
-    header=$(cat "$file" | head -1)
+    header=$(echo "$sv_cat" | head -1)
     exists=1
 fi
 
 sizes_csv=
-csv=$(tail -n +2 "$sv_file") # everything except 1st line
+csv=$(echo "$sv_cat" | tail -n +2) # everything except 1st line
 has_rows=1
 if [[ -z "$csv" ]]; then
     has_rows=0
 fi
+
+. ns delete sv_cat
+
+# ADJUST CSV
+# TO OMIT ANY ROWS THAT DON'T MATCH FILTER CRITERIA
+adj_csv="$csv"  # csv does not have header line
+if [[ ${has_rows} -gt 0 && -n "${sv_filter}" ]]; then
+    adj_csv=
+    vars=`set | grep "^sv_" | grep -v "^sv_filter=" | grep -v "^sv_file=" | grep -v "^sv_str=" | grep -v "^sv_row=" | grep -v "^sv_sep=" | cut -d '=' -f1`
+
+    # substitute
+    svns_sub="$csv"
+    . ns run sv-sep-sub  # a,"a,b" -> a,"a{sv_sep}b"
+    subst="$svns_sub"
+
+    # loop
+    saveIFS="$IFS"
+    IFS=$'\n'
+    for line in $subst
+    do
+        match=0
+        for varname in $vars
+        do
+            svfn_match_name="$varname"
+            svns_rc="${!svfn_match_name}"
+            svns_nl_repl=1
+            . ns run sv-sep-sub-rc  # a,b -> "a{sv_sep}b"
+            #                       # Hello$'\n'World -> Hello{sv_nl}World
+            svfn_match_value="${svns_rc_subst}"
+
+            svfn_match_header="$header"
+            svfn_sep="$sv_sep"
+
+            svfn_match_content="$line"
+            IFS="$saveIFS"
+            . ns run match
+            IFS=$'\n'
+            matches=$svfn_matches
+            . ns delete svfn_matches
+
+            if [[ $matches -eq 0 ]]; then
+                # miss!
+                if [[ "${sv_filter}" == and ]]; then
+                    match=0
+                    break
+                fi
+            else
+                # match!
+                if [[ "${sv_filter}" == and ]]; then
+                    match=1
+                elif [[ "${sv_filter}" == xor && $match -gt 0 ]]; then
+                    match=0
+                    break
+                elif [[ "${sv_filter}" == xor && $match -eq 0 ]]; then
+                    match=1
+                elif [[ "${sv_filter}" == or ]]; then
+                    match=1
+                    break
+                fi
+            fi
+        done
+        if [[ $match -gt 0 ]]; then
+            if [[ -n "$adj_csv" ]]; then
+                adj_csv="${adj_csv}"$'\n'
+            fi
+
+            # resolve
+            svns_sub_in="${line}"
+            . ns run sv-sep-sub-resolve
+            resolved_line="${svns_sub_out}"
+            adj_csv="${adj_csv}${resolved_line}"
+        fi
+    done
+    IFS="$saveIFS"
+fi
+csv="${adj_csv}"
+
 # DETERMINE COLSIZE VALUES LOOP BLOCK
 # STORED AS A SINGLE CSV LINE
 # example:

@@ -1,0 +1,32 @@
+
+test="US10 - Filter print OR strategy"
+
+sv_str=$(
+cat <<'EOF'
+col_a,col_b
+0,0
+1,1
+1,0
+EOF
+)
+
+sv_filter=or
+sv_col_a=1
+sv_col_b=1
+
+export SV_VERBOSE=0
+outp=$(. ns run print)
+actual=$(echo "$outp" | grep 1)
+wcl=$(echo "$outp" | grep 1 | wc -l)  # should only have 2 matches
+#      " | col_a | col_b |
+expect=" | 1     | 1     |"$'\n'\
+" | 1     | 0     |"
+# echo "$outp"
+
+if [[ "$expect" != "$actual" || $wcl -ne 2 ]]; then
+    echo "${test}...FAIL"
+else
+    echo "${test}...PASS"
+fi
+
+. ns delete sv_str sv_filter
