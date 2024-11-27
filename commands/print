@@ -10,7 +10,8 @@ fi
 
 sep="$sv_sep"
 
-if [[ -z "${sv_str}" && ! -f "${sv_file}" ]]; then
+virtual_scheme="virtual://"
+if [[ "${virtual_scheme}" != "${sv_file:0:${#virtual_scheme}}" && ! -f "${sv_file}" ]]; then
     echo "sv print failed. '${sv_file}' is not a regular file" >&2
     exit 1
 fi

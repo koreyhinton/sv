@@ -1,9 +1,9 @@
 
 test="US10 - Filter print OR strategy"
 
-sv_str=$(
+sv_file=$(
 cat <<'EOF'
-col_a,col_b
+virtual://col_a,col_b
 0,0
 1,1
 1,0
@@ -29,4 +29,4 @@ else
     echo "${test}...PASS"
 fi
 
-. ns delete sv_str sv_filter
+. ns delete sv_file sv_filter "sv_col_*"

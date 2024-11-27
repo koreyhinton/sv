@@ -1,11 +1,12 @@
 
-. ns import sv_file sv_str
+. ns import sv_file
 
-if [[ -n "${sv_str}" ]]; then
-    sv_cat="${sv_str}"
+virtual_scheme="virtual://"
+
+if [[ "${virtual_scheme}" == "${sv_file:0:${#virtual_scheme}}" ]]; then
+    sv_cat="${sv_file:${#virtual_scheme}}"
 else
     sv_cat=$(cat "$sv_file")
 fi
 
-. ns export sv_file sv_str sv_cat
-
+. ns export sv_file sv_cat

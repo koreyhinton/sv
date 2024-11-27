@@ -16,7 +16,7 @@ svdir="${BASH_SOURCE[0]}" # sv/test/test
 svdir="${svdir%/*}"  # sv/test
 svdir="${svdir%/*}"  # sv
 vc_file="${svdir}/commands/save"
-vc_args='sv_*'",sv_sep,sv_cat,sv_file,sv_str"
+vc_args='sv_*'",sv_sep,sv_file"
 
 nspath=$(which ns)
 cd "${nspath%/*}/js"
