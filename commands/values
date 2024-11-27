@@ -9,9 +9,6 @@ fi
 sep="$sv_sep"
 file="$sv_file"
 
-dir="${file%/*}"
-
-
 setvals=$(set | grep '^sv_')
 vals=
 special="{ "

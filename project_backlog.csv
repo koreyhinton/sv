@@ -20,3 +20,4 @@ Sun Nov 24 08:32:03 AM EST 2024,N,18,"bug: add expects an initial (files) direct
 Sun Nov 24 06:16:17 AM EST 2024,N,19,speed up print algorithm
 Sun Nov 24 08:32:03 AM EST 2024,N,20,add csv variable (DI) with script that can read from filesystem or variable (allows easier testing)
 Sun Nov 24 08:32:03 AM EST 2024,N,21,"All scripts to ignore sv_filter, sv_str, and sv_cat"
+Wed Nov 27 08:14:07 AM EST 2024,N,22,shellcheck all functions

@@ -10,8 +10,6 @@ sep="$sv_sep"
 file="$sv_file"
 rowno="$sv_row"
 
-dir="${file%/*}"
-
 if [[ -z "$rowno" ]]; then
     echo "sv save row failed due to no previously loaded row found, run the load command first"
     exit 1
@@ -26,10 +24,8 @@ newcol=
 
 header=
 wcl=$(cat "$file" | wc -l)
-exists=0
 if [[ $wcl -gt 1 ]]; then
     header=$(cat "$file" | head -1)
-    exists=1
 
     # save guard
     svfn_sep="$sv_sep"

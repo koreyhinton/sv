@@ -23,19 +23,23 @@ cd "${nspath%/*}/js"
 npm install
 npm run build
 cd -
-
+. ns run test-sc
 . ns run test-vc
 
 vc_file="${svdir}/commands/add"
+. ns run test-sc
 . ns run test-vc
 
 vc_file="${svdir}/commands/print"
+. ns run test-sc
 . ns run test-vc
 
 vc_file="${svdir}/commands/load"
+. ns run test-sc
 . ns run test-vc
 
 vc_file="${svdir}/commands/values"
+. ns run test-sc
 . ns run test-vc
 
 . ns delete vc_file vc_args

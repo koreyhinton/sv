@@ -19,11 +19,9 @@ fi
 header=
 . ns run sv-cat
 wcl=$(echo "$sv_cat" | wc -l)
-exists=0
 
 if [[ $wcl -ge 1 ]]; then
     header=$(echo "$sv_cat" | head -1)
-    exists=1
 fi
 
 sizes_csv=
@@ -125,7 +123,6 @@ svns_sub="$csv"
 . ns run sv-sep-sub  # a,b -> a{sv_sep}b
 subst="$svns_sub"; . ns delete svns_sub
 fieldno=1
-row=
 saveIFS="$IFS"
 IFS="$sep"
 for col in $header
