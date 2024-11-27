@@ -8,10 +8,7 @@ fi
 
 : ${SV_VERBOSE:=0}
 
-sep="$sv_sep"
 file="$sv_file"
-
-dir="${file%/*}"
 
 if [[ ! -f "$file" ]]; then
     echo "sv load failed. '${file}' is not a regular file" >&2
@@ -36,8 +33,6 @@ subst="$svns_sub"
 
 matched_once=0
 
-full_line=
-full_line_qt_cnt=0
 lineno=1  # consider this more as a row number
 saveIFS="$IFS"
 
