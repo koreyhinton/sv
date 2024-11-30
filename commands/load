@@ -24,7 +24,6 @@ if [[ $wcl -gt 1 ]]; then
     header=$(echo "$sv_cat" | head -1)
     exists=1
 fi
-
 csv=$(echo "$sv_cat")
 . ns delete sv_cat
 
@@ -33,7 +32,6 @@ vars=$(set | grep "^sv_" | cut -d '=' -f1)
 svns_sub="$csv"
 . ns run sv-sep-sub  # a,b -> a{sv_sep}b
 subst="$svns_sub"
-
 matched_once=0
 
 lineno=1  # consider this more as a row number
@@ -114,7 +112,7 @@ do
         svfn_sep="$sv_sep"
 
         svfn_match_content="$line"
-
+        # echo "TRY (${svns_name}) (${svfn_match_value}) (${svfn_match_content}) (${svfn_match_header})"
         IFS="$saveIFS"
         . ns run match
         IFS=$'\n'

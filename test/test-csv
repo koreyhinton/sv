@@ -44,6 +44,7 @@ min=$(echo "$max_min" | cut -d "|" -f1)
 max=$(echo "$max_min" | cut -d "|" -f2)
 
 for ((i=min;i<=max;i++)); do
+    # Uncomment if statement and assign a number based on which test to run (individually):
     # if [[ $i -ne 5 ]]; then
     #     continue
     # fi
@@ -93,8 +94,9 @@ EOF
     . ns run load        # loads in all sv_vars needed
     . ns delete sv_row
     sv_file="virtual://num,name,column_data,is_multiline" # adding it to a new (blank file)
-    . ns run add  # problem!!
-    . ns delete sv_name sv_column_data sv_is_multiline
+    . ns run add
+    . ns delete sv_name sv_column_data sv_is_multiline  # deleting, to make sure it can retrieve
+    #                                                   # solely from the assigned sv_num value
     . ns run load
     if [[ -z "$sv_name" || "$sv_name" != "$res_name"  || ${sv_is_multiline} -ne ${res_is_multiline} || ${sv_num} -ne ${i} || "${sv_column_data}" != "${res_column_data}" ]]; then
         echo "${test}...FAIL"
@@ -106,62 +108,6 @@ EOF
 
     . ns delete res res_name res_is_multiline res_column_data res_column_data_len
 done
-
-exit 1
-
-sv_num=1
-. ns run load
-test="Row ${sv_num} Load Test - ${sv_name}..."
-f1=$(echo "$sv_column_data" | cut -d ',' -f1 | cut -d '"' -f 2)
-f2=$(echo "$sv_column_data" | cut -d ',' -f2)
-f3=$(echo "$sv_column_data" | cut -d ',' -f3 | cut -d '"' -f 1)
-f="${f1}${f2}${f3}"  # abc
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-((sv_num++))
-. ns run load
-test="Row ${sv_num} Load Test - ${sv_name}..."
-wcl=$(echo "$sv_column_data" | wc -l)
-# load should not include the surrounding quotes
-# they will be added back in automatically on save
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-((sv_num++))
-. ns run load
-test="Row ${sv_num} Load Test - ${sv_name}..."
-enddex=${#sv_column_data}; ((enddex--))
-wcl=$(echo "$sv_column_data" | wc -l)
-enddex1=$(echo "$sv_column_data" | head -1 | wc -c); ((enddex1-=2))  # -1 and -1 newline
-eol1="${sv_column_data:$enddex1:1}" # last char of first line should have comma
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 || "$eol1" != "," ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-4
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-5
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-6
 
 . ns delete sv_name sv_column_data sv_is_multiline
 sv_file=sv_test/data2.csv
