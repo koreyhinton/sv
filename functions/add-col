@@ -30,7 +30,6 @@ do
     # . ns run sv-sep-sub-resolve
     # res_line="$svns_sub_out"
 
-    echo RUNNING LINESPAN
     sv_row=$r
     . ns run linespan
 

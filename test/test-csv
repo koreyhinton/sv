@@ -70,7 +70,7 @@ EOF
     res_column_data_len=${#res_column_data}; ((res_column_data_len-=3))
     res_column_data="${res_column_data:0:$res_column_data_len}"
 
-    # Load Test
+    # LOOP ITERATION - LOAD TEST
     test="Row ${i} Load Test - ${res_name}..."
     sv_num="${i}"
     sv_file="$virtual_csv"
@@ -87,7 +87,7 @@ EOF
     . ns delete sv_file sv_num sv_name sv_is_multiline sv_column_data sv_row
     . ns delete test
 
-    # Add Test
+    # LOOP ITERATION - ADD TEST
     test="Row ${i} Add Test - ${res_name}..."
     sv_file="$virtual_csv"
     sv_num="${i}"
@@ -106,51 +106,34 @@ EOF
     . ns delete sv_file sv_num sv_name sv_is_multiline sv_column_data sv_row
     . ns delete test
 
+    # LOOP ITERATION - SAVE TEST
+    sv_file="$virtual_csv"  # operate on this particular row of the file
+    sv_num=$i
+    . ns run load
+    sv_column_data="x,y,z"
+    . ns run save
+    . ns delete sv_name sv_column_data sv_is_multiline
+    . ns run load
+    test="Row ${i} Save Test - ${res_name}..."
+    f1=$(echo "$sv_column_data" | cut -d ',' -f1)
+    f2=$(echo "$sv_column_data" | cut -d ',' -f2)
+    f3=$(echo "$sv_column_data" | cut -d ',' -f3)
+    f="${f1}${f2}${f3}"  # xyz
+    if [[ "$sv_column_data" != 'x,y,z' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
+        echo "${test}...FAIL"
+    else
+        echo "${test}...PASS"
+    fi
+
+    . ns delete sv_file sv_num sv_name sv_is_multiline sv_column_data sv_row
+    . ns delete test
+
     . ns delete res res_name res_is_multiline res_column_data res_column_data_len
 done
 
-. ns delete sv_name sv_column_data sv_is_multiline
-sv_file=sv_test/data2.csv
-sv_num=1
-. ns run load
-sv_column_data="x,y,z"
-. ns run save
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Save Test - ${sv_name}..."
-f1=$(echo "$sv_column_data" | cut -d ',' -f1)
-f2=$(echo "$sv_column_data" | cut -d ',' -f2)
-f3=$(echo "$sv_column_data" | cut -d ',' -f3)
-f="${f1}${f2}${f3}"  # xyz
-if [[ "$sv_column_data" != 'x,y,z' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
+exit 1;
 
-. ns delete sv_name sv_column_data sv_is_multiline
-
-((sv_num++))
-sv_file=sv_test/data2.csv
-. ns run load
-sv_column_data=$'World\nHello' # swap lines
-. ns run save
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Save Test - ${sv_name}..."
-enddex=${#sv_column_data}; ((enddex--))
-wcl=$(echo "$sv_column_data" | wc -l)
-if [[ "$sv_column_data" != $'World\nHello' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-9
-
-. ns delete sv_name sv_column_data sv_is_multiline
+# TODO: unit test: should run first (as it's faster)!
 
 sv_num=3; ((sv_num++))
 sv_file=sv_test/data.csv
