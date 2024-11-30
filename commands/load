@@ -164,7 +164,7 @@ if [[ $SV_VERBOSE -eq 1 ]]; then
     . ns run values
 fi
 if [[ ${matched_once} -eq 0 ]]; then
-    echo "SV_FILE ${sv_file} END"
+    # echo "SV_FILE ${sv_file} END"
     echo "Error: unable to load the specified sv row" 1>&2
     exit 1
 fi

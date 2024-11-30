@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # create a simple spreadsheet
-mkdir -p sv_test
-echo > sv_test/user-scenarios.csv
-sv_file=sv_test/user-scenarios.csv
+# mkdir -p sv_test
+# echo > sv_test/user-scenarios.csv
+# sv_file=sv_test/user-scenarios.csv
+sv_file="virtual://"
 sv_letter=a
 sv_upper=A
 . ns run add
@@ -27,46 +28,20 @@ else
 fi
 
 . ns delete last sv_letter sv_upper test
+. ns delete sv_row sv_sep sv_file
 
-test="US2 - Save With New Var Adds A New Column Test"  # other rows get empty
+. ns run test-user-scenarios-saves-new-column
 
-sv_letter=a
-. ns run load
-sv_lower=a  # new column
-. ns run save
-first=$(head -1 "$sv_file")
-last=$(tail -1 "$sv_file")
-if [[ "$first" != "a,a,A" && "$first" != "a,A,a" ]]; then
-    if [[ "$last" != ",b,B" && "$last" != ",B,b" ]]; then
-        echo "${test}...FAIL"
-    else
-        echo "${test}...PASS"
-    fi
-else
-    echo "${test}...PASS"
-fi
+. ns run test-user-scenarios-adds-new-column
 
-test="US3 - Add With New Var Adds A New Column Test"
+sv_file=$(cat << EOF
+virtual://flag,lower,letter,upper
+,a,a,A
+,,b,B
+Y,c,c,C
+EOF
+)
 
-sv_letter=c
-sv_lower=c
-sv_upper=C
-sv_flag=Y  # new column
-. ns run add
-first=$(head -1 "$sv_file")
-last=$(tail -1 "$sv_file")
-if [[ "$first" != ",a,a,A" && "$first" != ",a,A,a" ]]; then
-    if [[ "$last" != "Y,c,c,C" && "$last" != "Y,c,C,c" ]]; then
-        echo "${test}...FAIL"
-    else
-        echo "${test}...PASS"
-    fi
-else
-    echo "${test}...PASS"
-fi
-
-# cat "$sv_file"
-# 
 test="US4 - Add Or Save 2+ New Vars Does Not Add Column Test" # protects against adding extra columns that were previously loaded from another file and never unset
 
 sv_letter=d
@@ -75,10 +50,11 @@ sv_upper=D
 sv_flag=Y
 sv_new_column=d # new column
 sv_new_columnd=d # new column
-. ns run add 2>/dev/null || true
-. ns run save 2>/dev/null || true
-
-d_col_cnt=$(cat "$sv_file" | grep "d" | wc -l)
+. ns run add 2>/dev/null 1>/dev/null || true
+. ns run save 2>/dev/null 1>/dev/null || true
+. ns run sv-cat
+d_col_cnt=$(echo "$sv_cat" | grep "d" | wc -l)
+. ns delete sv_cat
 if [[ $d_col_cnt -gt 0 ]]; then
     echo "${test}...FAIL"
 else
@@ -89,18 +65,23 @@ fi
 . ns delete d_col_cnt
 
 test="US5 - Adding empty var in row, then load it and re-save it"
-sv_file=sv_test/user-scenarios-empty-var-test.csv
-if [[ -f "$sv_file" ]]; then
-    rm "$sv_file"
-fi
+# sv_file=sv_test/user-scenarios-empty-var-test.csv
+# if [[ -f "$sv_file" ]]; then
+#     rm "$sv_file"
+# fi
+sv_file="virtual://"
 sv_empty=
 sv_other=1
 . ns run add
-empty_var_line=$(tail -1 "$sv_file")
+. ns run sv-cat
+empty_var_line=$(echo "$sv_cat" | tail -1)
+. ns delete sv_cat
 capture_row_no="$sv_row"
 . ns run load
 . ns run save # 2>&1 1>>/dev/null
-wcl=$(cat "$sv_file" | wc -l)
+. ns run sv-cat
+wcl=$(echo "$sv_cat" | wc -l)
+. ns delete sv_cat
 if [[ $wcl -ne 3 && "$sv_row" != 2 && "$capture_row_no" != "1" && "$empty_var_line" != "1," && "$empty_var_line" != ",1" ]]; then
     echo "${test}...FAIL"
 else
@@ -111,22 +92,25 @@ fi
 . ns delete wcl empty_var_line capture_row_no
 
 test="US6 - Omitted column fails to add row"
-sv_file="sv_test/user-scenarios-omitted.csv"
-if [[ -f "$sv_file" ]]; then
-    rm "$sv_file"
-fi
-echo "title,other,stuff" >> "$sv_file"
+# sv_file="sv_test/user-scenarios-omitted.csv"
+# if [[ -f "$sv_file" ]]; then
+#     rm "$sv_file"
+# fi
+# echo "title,other,stuff" >> "$sv_file"
+sv_file="virtual://title,other,stuff"
 sv_title="My Title: My subtitle, and stuff"
 sv_other="my data"
 # sv_stuff gets omitted
 . ns run add 2>/dev/null
 ec=$?
-wcl=$(cat "$sv_file" | wc -l)
+. ns run sv-cat
+wcl=$(echo "$sv_cat" | wc -l)
+. ns delete sv_cat
 
-if [[ $wcl -ne 1 || $ec -lt 1 ]]; then
-    echo "${test}...FAIL"
-else
+if [[ $wcl -eq 1 && $ec -eq 0 ]]; then
     echo "${test}...PASS"
+else
+    echo "${test}...FAIL"
 fi
 
 . ns run test-user-scenarios-print-mult-line-comma

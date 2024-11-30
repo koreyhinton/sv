@@ -1,0 +1,31 @@
+test="US3 - Add With New Var Adds A New Column Test"
+
+sv_file=$(cat << EOF
+virtual://lower,letter,upper
+a,a,A
+,b,B
+EOF
+)
+
+sv_letter=c
+sv_lower=c
+sv_upper=C
+sv_flag=Y  # new column
+. ns run add
+. ns run sv-cat
+first=$(echo "$sv_cat" | head -2 | tail -1)
+last=$(echo "$sv_cat" | tail -1)
+# echo "first (${first}) last (${last})"
+if [[ "$first" == ",a,a,A" || "$first" == ",a,A,a" ]]; then
+    if [[ "$last" == "Y,c,c,C" || "$last" == "Y,c,C,c" ]]; then
+        echo "${test}...PASS"
+    else
+        echo "${test}...FAIL"
+    fi
+else
+    echo "${test}...FAIL"
+fi
+
+. ns delete sv_flag sv_letter sv_lower sv_upper sv_cat
+. ns delete sv_file sv_row sv_sep
+
