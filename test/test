@@ -49,6 +49,7 @@ vc_file="${svdir}/commands/values"
 . ns delete "sv_*"
 export SV_VERBOSE=0
 
+. ns run test-csv-unit
 . ns run test-csv
 . ns delete "sv_*"
 . ns run test-user-scenarios
