@@ -18,6 +18,8 @@ Sat Nov 23 08:10:43 AM EST 2024,Y,16,bug: sv-print header-only csv file correctl
 Sat Nov 23 06:06:05 AM EST 2024,N,17,keep collapsing/shortening longest column (or break that column on newlines) until it fits
 Sun Nov 24 08:32:03 AM EST 2024,N,18,"bug: add expects an initial (files) directory, instead allow any regular file"
 Sun Nov 24 06:16:17 AM EST 2024,N,19,speed up print algorithm
-Sun Nov 24 08:32:03 AM EST 2024,N,20,add csv variable (DI) with script that can read from filesystem or variable (allows easier testing)
+Sun Dec  1 06:26:55 AM EST 2024,Y,20,add csv variable (DI) with script that can read from filesystem or variable (allows easier testing) -- update: accomplished via virtual:// syntax
 Sun Nov 24 08:32:03 AM EST 2024,N,21,"All scripts to ignore sv_filter, sv_str, and sv_cat"
-Wed Nov 27 08:14:07 AM EST 2024,N,22,shellcheck all functions
+Sun Dec  1 06:45:45 AM EST 2024,Y,22,shellcheck all functions
+Sun Dec  1 06:45:45 AM EST 2024,N,23,default sv_filter to 'and' when there is only 1 column value given
+Sun Dec  1 06:45:45 AM EST 2024,N,24,sv-add gives error if not in files/ dir: “mkdir: cannot create directory project_backlog.csv: File exists”

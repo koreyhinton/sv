@@ -42,6 +42,12 @@ vc_file="${svdir}/commands/values"
 . ns run test-sc
 . ns run test-vc
 
+for script in `ls "${svdir}/functions/" | grep -v "\~"`
+do
+    vc_file=$(realpath "${svdir}/functions/${script}")
+    . ns run test-sc
+done
+
 . ns delete vc_file vc_args
 
 # SV TESTS

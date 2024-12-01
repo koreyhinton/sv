@@ -23,7 +23,7 @@ svns_sub="$csv"
 subst_csv="$svns_sub"
 saveIFS="$IFS"
 IFS=$'\n'
-for line in $subst_csv
+for _ in $subst_csv  # for line in (substituted) csv
 do
     # Commented out: sv-sep-sub-resolve (appears res_line and svns_sub_out aren't being used)
     # svns_sub_in="$line"
@@ -39,7 +39,7 @@ do
     if [[ $((rowno+1)) -eq $r ]]; then
         # echo "row found: ${line}"
         varname="sv_${newcol}"
-        svname=$varname
+        # svname=$varname
         if [[ $is_virtual_file -eq 0 ]]; then
             sed -i "${l} c${!varname}${sv_sep}${single_line}" "$sv_file"
         else

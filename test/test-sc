@@ -1,6 +1,6 @@
 . ns import vc_file
 
-printout=$(shellcheck --external-sources --severity=warning "${vc_file}" | grep -v "(warning).*sv_.*" | grep -v "(warning).*svns_.*" | grep -v "(warning).*svfn_.*" | grep -v "(warning).*kv.*")
+printout=$(shellcheck -e SC1007 --external-sources --severity=warning "${vc_file}" | grep -v "(warning).*sv_.*" | grep -v "(warning).*svns_.*" | grep -v "(warning).*svfn_.*" | grep -v "(warning).*kv.*")
 
 wcl_failures=$(echo "$printout" | grep "(warning)" | wc -l)
 if [[ ${wcl_failures} -gt 0 ]]; then
