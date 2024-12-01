@@ -71,8 +71,11 @@ do
 done
 IFS="$saveIFS"
 
-. ns run linespan
+save_sv_cat="$sv_cat"
+. ns run linespan  # sets its own sv_cat var
 lineno=$svfn_lspan_i
+sv_cat="${save_sv_cat}"
+. ns delete save_sv_cat
 
 # echo "$lineno"
 # echo "$row_csv"
