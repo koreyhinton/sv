@@ -7,8 +7,8 @@ Sun Nov 10 09:24:37 AM EST 2024,Y,5,bug: print is not respecting comma inside a 
 Sun Nov 24 08:32:03 AM EST 2024,Y,6,filterable print by specifying sv_ values existing in multiple rows
 Sun Sep  1 08:13:40 AM EDT 2024,Y,7,"bug: load, then add keeps sv_row number from the load but should be updated with add"
 Sat Sep  7 07:43:34 AM EDT 2024,Y,8,add gh action yaml workflow to run the automated tests
-Sun Sep 22 08:03:46 AM EDT 2024,N,9,test all save scenarios for double quotes being present in a field
-Sun Sep 22 08:03:46 AM EDT 2024,N,10,test all add scenarios for double quotes being present in a field
+Sun Dec  1 06:26:55 AM EST 2024,Y,9,test all save scenarios for double quotes being present in a field
+Sun Dec  1 06:27:40 AM EST 2024,Y,10,test all add scenarios for double quotes being present in a field
 Sun Sep 22 08:15:21 AM EDT 2024,Y,11,refactor non-commands to the functions directory
 Sun Sep 29 07:24:00 AM EDT 2024,Y,12,"fix omitted column not failing to add bug, fix empty column not being inserted and ensure no-op re-load/re-save"
 Sat Oct  5 06:25:37 AM EDT 2024,Y,13,"optionally, print values on load"
@@ -18,6 +18,8 @@ Sat Nov 23 08:10:43 AM EST 2024,Y,16,bug: sv-print header-only csv file correctl
 Sat Nov 23 06:06:05 AM EST 2024,N,17,keep collapsing/shortening longest column (or break that column on newlines) until it fits
 Sun Nov 24 08:32:03 AM EST 2024,N,18,"bug: add expects an initial (files) directory, instead allow any regular file"
 Sun Nov 24 06:16:17 AM EST 2024,N,19,speed up print algorithm
-Sun Nov 24 08:32:03 AM EST 2024,N,20,add csv variable (DI) with script that can read from filesystem or variable (allows easier testing)
+Sun Dec  1 06:26:55 AM EST 2024,Y,20,add csv variable (DI) with script that can read from filesystem or variable (allows easier testing) -- update: accomplished via virtual:// syntax
 Sun Nov 24 08:32:03 AM EST 2024,N,21,"All scripts to ignore sv_filter, sv_str, and sv_cat"
-Wed Nov 27 08:14:07 AM EST 2024,N,22,shellcheck all functions
+Sun Dec  1 06:45:45 AM EST 2024,Y,22,shellcheck all functions
+Sun Dec  1 06:45:45 AM EST 2024,N,23,default sv_filter to 'and' when there is only 1 column value given
+Sun Dec  1 06:45:45 AM EST 2024,N,24,sv-add gives error if not in files/ dir: “mkdir: cannot create directory project_backlog.csv: File exists”

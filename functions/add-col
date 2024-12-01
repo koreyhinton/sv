@@ -8,15 +8,22 @@ rowno=$svfn_rowno
 # echo "newcol: $newcol"
 # echo "rowno: $rowno"
 
+virtual_scheme="virtual://"
+is_virtual_file=0
+if [[ "${virtual_scheme}" == "${sv_file:0:${#virtual_scheme}}" ]]; then
+    is_virtual_file=1
+fi
+
 l=1  # line number
 r=0
-csv=$(cat "$sv_file")
+. ns run sv-cat
+csv=$(echo "$sv_cat")
 svns_sub="$csv"
 . ns run sv-sep-sub
 subst_csv="$svns_sub"
 saveIFS="$IFS"
 IFS=$'\n'
-for line in $subst_csv
+for _ in $subst_csv  # for line in (substituted) csv
 do
     # Commented out: sv-sep-sub-resolve (appears res_line and svns_sub_out aren't being used)
     # svns_sub_in="$line"
@@ -26,26 +33,42 @@ do
     sv_row=$r
     . ns run linespan
 
-    single_line=$(head -"$l" "$sv_file" | tail -1)
+    . ns run sv-cat
+    single_line=$(echo "$sv_cat" | head -"$l" | tail -1)
 
     if [[ $((rowno+1)) -eq $r ]]; then
         # echo "row found: ${line}"
         varname="sv_${newcol}"
-        svname=$varname
-        sed -i "${l} c${!varname}${sv_sep}${single_line}" "$sv_file"
+        # svname=$varname
+        if [[ $is_virtual_file -eq 0 ]]; then
+            sed -i "${l} c${!varname}${sv_sep}${single_line}" "$sv_file"
+        else
+            sv_file=$(echo "$sv_cat" | sed "${l} c${!varname}${sv_sep}${single_line}")
+            sv_file="virtual://${sv_file}"
+        fi
         ((l+=svfn_lspan_len))
         ((r++))
         continue
     elif [[ $r -eq 0 ]]; then
-        sed -i "${l} c${newcol}${sv_sep}${single_line}" "$sv_file"
+        if [[ $is_virtual_file -eq 0 ]]; then
+            sed -i "${l} c${newcol}${sv_sep}${single_line}" "$sv_file"
+        else
+            sv_file=$(echo "$sv_cat" | sed "${l} c${newcol}${sv_sep}${single_line}")
+            sv_file="virtual://${sv_file}"
+        fi
     else
-        sed -i "${l} c${sv_sep}${single_line}" "$sv_file"
+        if [[ $is_virtual_file -eq 0 ]]; then
+            sed -i "${l} c${sv_sep}${single_line}" "$sv_file"
+        else
+            sv_file=$(echo "$sv_cat" | sed "${l} c${sv_sep}${single_line}")
+            sv_file="virtual://${sv_file}"
+        fi
     fi
     ((l+=svfn_lspan_len))
     ((r++))
 done
 IFS="$saveIFS"
-
+. ns delete sv_cat
 
 . ns export sv_sep sv_file
 

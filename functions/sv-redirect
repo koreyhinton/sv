@@ -1,0 +1,12 @@
+
+. ns import sv_file sv_redirect
+
+virtual_scheme="virtual://"
+
+if [[ "${virtual_scheme}" == "${sv_file:0:${#virtual_scheme}}" ]]; then
+    sv_file="virtual://${sv_redirect}" # $'\n'
+else
+    echo "$sv_redirect" > "$sv_file"
+fi
+
+. ns export sv_file

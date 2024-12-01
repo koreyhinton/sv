@@ -11,7 +11,7 @@ saveIFS="$IFS"
 IFS="$svfn_sep"
 for col in $svfn_minuend
 do
-    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" ]]; then
+    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" || "$col" == "sv_cat" || "$col" == "cat" ]]; then
         continue
     fi
     # echo "A: ${col}"
@@ -20,7 +20,7 @@ done
 
 for col in $svfn_subtrahend
 do
-    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" ]]; then
+    if [[ "$col" == "sv_file" || "$col" == "sv_sep" || "$col" == "sv_row" || "$col" == "file" || "$col" == "sep" || "$col" == "row" || "$col" == "sv_cat" || "$col" == "cat" ]]; then
         continue
     fi
     # echo "B: ${col}"

@@ -1,0 +1,16 @@
+
+. ns import sv_file sv_append
+
+virtual_scheme="virtual://"
+
+if [[ "${virtual_scheme}" == "${sv_file:0:${#virtual_scheme}}" ]]; then
+    if [[ "$sv_file" == "virtual://"  ]]; then
+        sv_file="${sv_file}${sv_append}"
+    else
+        sv_file="${sv_file}"$'\n'"${sv_append}"
+    fi
+else
+    echo "$sv_append" >> "$sv_file"
+fi
+
+. ns export sv_file

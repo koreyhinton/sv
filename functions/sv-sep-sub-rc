@@ -33,10 +33,15 @@ do
         ((i++))
         continue
     fi
-    str="${str}${c}"
     if [[ "$c" == '"' ]]; then
-        str="${str}${c}"  # double all quotes
+        str="${str}{sv_qt}"
+    else
+        str="${str}${c}"
     fi
+    # str="${str}${c}"
+    # if [[ "$c" == '"' ]]; then
+    #     str="${str}${c}"  # double all quotes
+    # fi
     ((i++))
 done
 

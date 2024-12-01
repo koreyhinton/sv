@@ -1,0 +1,31 @@
+
+test="US2 - Save With New Var Adds A New Column Test"  # other rows get empty
+
+sv_file=$(cat<< EOF
+virtual://letter,upper
+a,A
+b,B
+EOF
+)
+
+sv_letter=a
+. ns run load
+
+sv_lower=a  # new column
+. ns run save
+. ns run sv-cat
+first=$(echo "$sv_cat" | head -2 | tail -1)
+last=$(echo "$sv_cat" | tail -1)
+# echo "first (${first}) last (${last})"
+if [[ "$first" == "a,a,A" || "$first" == "a,A,a" ]]; then
+    if [[ "$last" == ",b,B" || "$last" == ",B,b" ]]; then
+        echo "${test}...PASS"
+    else
+        echo "${test}...FAIL"
+    fi
+else
+    echo "${test}...FAIL"
+fi
+
+. ns delete sv_cat sv_letter sv_lower sv_row sv_upper sv_file sv_sep
+

@@ -9,21 +9,27 @@ fi
 sep="$sv_sep"
 file="$sv_file"
 
-dir="${file%/*}"
-mkdir -p "$dir"
-touch "$file"
-if [[ $? -gt 0 || ! -f "$file" ]]; then
-    echo "sv add failed. '${file}' is not a regular file" >&2
-    exit 1
+virtual_scheme="virtual://"
+if [[ "${virtual_scheme}" == "${sv_file:0:${#virtual_scheme}}" ]]; then
+    :
+else
+    dir="${file%/*}"
+    mkdir -p "$dir"
+    touch "$file"
+    if [[ $? -gt 0 || ! -f "$file" ]]; then
+        echo "sv add failed. '${file}' is not a regular file" >&2
+        exit 1
+    fi
 fi
 
 # the code assumes that the header line does not have special CSV parsing rules,
 # so just assume no quoted commas and it can split on the comma (or $sv_sep)
 header=
-wcl=$(cat "$file" | wc -l)
+. ns run sv-cat
+wcl=$(echo "$sv_cat" | wc -l)
 hdr_exists=0
 if [[ $wcl -gt 0 ]]; then
-    header=$(cat "$file" | head -1)
+    header=$(echo "$sv_cat" | head -1)
     hdr_exists=1
 fi
 
@@ -31,7 +37,7 @@ fi
 for name in `set | grep "^sv_" | cut -d '=' -f1`
 do
     if [[ $hdr_exists -eq 1 ]]; then
-        content=$(cat "$file")
+        content=$(echo "$sv_cat")
         if [[ -n "$content" ]]; then
             break
         else
@@ -42,7 +48,7 @@ do
         fi
     fi
 
-    if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" ]]; then
+    if [[ "$name" == "sv_file" || "$name" == "sv_sep" || "$name" == "sv_row" || "$name" == "sv_cat" ]]; then
         continue
     fi
     # val="${!name}"
@@ -55,10 +61,13 @@ do
     fi
 done
 
+. ns delete sv_cat
+
 newcol=
 
 if [[ $hdr_exists -eq 0 ]]; then
-    echo "$header" >"$file"
+    sv_redirect="$header"
+    . ns run sv-redirect
 else
     # add guard
     svfn_sep="$sv_sep"
@@ -113,10 +122,11 @@ if [[ $abort -gt 0 ]]; then
     exit 1
 fi
 
-echo "$row" >>"$file"
+sv_append="$row"
+. ns run sv-append
 
 sv_sep="$sep"
-sv_file="$file"
+sv_file="$sv_file"
 
 savenewcol=
 save_new_col_val=

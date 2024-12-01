@@ -10,27 +10,28 @@ fi
 
 file="$sv_file"
 
-if [[ ! -f "$file" ]]; then
+virtual_scheme="virtual://"
+if [[ "${virtual_scheme}" != "${sv_file:0:${#virtual_scheme}}" && ! -f "$file" ]]; then
     echo "sv load failed. '${file}' is not a regular file" >&2
     exit 1
 fi
 
 header=
-wcl=$(cat "$file" | wc -l)
+. ns run sv-cat
+wcl=$(echo "$sv_cat" | wc -l)
 exists=0
 if [[ $wcl -gt 1 ]]; then
-    header=$(cat "$file" | head -1)
+    header=$(echo "$sv_cat" | head -1)
     exists=1
 fi
-
-csv=$(cat "$file")
+csv=$(echo "$sv_cat")
+. ns delete sv_cat
 
 vars=$(set | grep "^sv_" | cut -d '=' -f1)
 
 svns_sub="$csv"
 . ns run sv-sep-sub  # a,b -> a{sv_sep}b
 subst="$svns_sub"
-
 matched_once=0
 
 lineno=1  # consider this more as a row number
@@ -95,7 +96,7 @@ do
     # in order to load it to memory
     for svns_name in $vars
     do
-        if [[ "$svns_name" == "sv_file" || "$svns_name" == "sv_sep" || "$svns_name" == "sv_row" ]]; then
+        if [[ "$svns_name" == "sv_file" || "$svns_name" == "sv_sep" || "$svns_name" == "sv_row" || "$svns_name" == "sv_cat" ]]; then
             continue
         fi
 
@@ -111,7 +112,7 @@ do
         svfn_sep="$sv_sep"
 
         svfn_match_content="$line"
-
+        # echo "TRY (${svns_name}) (${svfn_match_value}) (${svfn_match_content}) (${svfn_match_header})"
         IFS="$saveIFS"
         . ns run match
         IFS=$'\n'
@@ -163,6 +164,7 @@ if [[ $SV_VERBOSE -eq 1 ]]; then
     . ns run values
 fi
 if [[ ${matched_once} -eq 0 ]]; then
+    # echo "SV_FILE ${sv_file} END"
     echo "Error: unable to load the specified sv row" 1>&2
     exit 1
 fi

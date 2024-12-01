@@ -15,21 +15,27 @@ if [[ -z "$rowno" ]]; then
     exit 1
 fi
 
-if [[ ! -f "$file" ]]; then
+virtual_scheme="virtual://"
+if [[ "${virtual_scheme}" != "${sv_file:0:${#virtual_scheme}}" && ! -f "$file" ]]; then
     echo "sv save failed. '${file}' is not a regular file" >&2
     exit 1
+fi
+is_virtual_file=0
+if [[ "${virtual_scheme}" == "${sv_file:0:${#virtual_scheme}}" ]]; then
+    is_virtual_file=1
 fi
 
 newcol=
 
 header=
-wcl=$(cat "$file" | wc -l)
+. ns run sv-cat
+wcl=$(echo "$sv_cat" | wc -l)
 if [[ $wcl -gt 1 ]]; then
-    header=$(cat "$file" | head -1)
+    header=$(echo "$sv_cat" | head -1)
 
     # save guard
     svfn_sep="$sv_sep"
-    svfn_minuend=$(set | grep "^sv_" | cut -d "=" -f1 | tr '\n' "$sv_sep")
+    svfn_minuend=$(set | grep "^sv_" | cut -d "=" -f1 | grep -v "^sv_cat" | tr '\n' "$sv_sep")
     svfn_subtrahend="$header"
     . ns run sv-diff-count
     if [[ $svfn_diff_count -gt 1 ]]; then
@@ -37,8 +43,10 @@ if [[ $wcl -gt 1 ]]; then
         exit 1
     elif [[ $svfn_diff_count -eq 1 ]]; then
         newcol="$svfn_diff"
+        # echo "NEWCOL: (${newcol})"
     fi
 fi
+
 
 # echo "$header"
 row_csv=
@@ -63,8 +71,11 @@ do
 done
 IFS="$saveIFS"
 
-. ns run linespan
+save_sv_cat="$sv_cat"
+. ns run linespan  # sets its own sv_cat var
 lineno=$svfn_lspan_i
+sv_cat="${save_sv_cat}"
+. ns delete save_sv_cat
 
 # echo "$lineno"
 # echo "$row_csv"
@@ -73,14 +84,24 @@ if [[ $svfn_lspan_len -gt 1 ]]; then
     start=$((svfn_lspan_i+1))
     end=$((svfn_lspan_i+svfn_lspan_len-1))
     # echo will delete "${start},${end}d" "$sv_file"
-    sed -i -e "${start},${end}d" "$sv_file"
+    if [[ $is_virtual_file -eq 0 ]]; then
+        sed -i -e "${start},${end}d" "$sv_file"
+    else
+        sv_file=$(echo "$sv_cat" | sed -e "${start},${end}d")
+        sv_file="virtual://${sv_file}"
+    fi
 fi
 
 # echo will replace "${lineno} c${row_csv}" "$sv_file"
-sed -i "${lineno} c${row_csv}" "$sv_file"
-
+if [[ $is_virtual_file -eq 0 ]]; then
+    sed -i "${lineno} c${row_csv}" "$sv_file"
+else
+    sv_file=$(echo "$sv_cat" | sed "${lineno} c${row_csv}")
+    sv_file="virtual://${sv_file}"
+fi
 . ns delete svfn_lspan_i svfn_lspan_len
 
+. ns delete sv_cat
 
 
 if [[ -n "$newcol" ]]; then

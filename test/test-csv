@@ -1,162 +1,134 @@
 #!/bin/bash
 
-wd=$(pwd)
-end_match="sv/files"
-end_match_len=${#end_match}
-wd_len=${#wd}
-i=$((wd_len-end_match_len))
+# wd=$(pwd)
+# end_match="sv/files"
+# end_match_len=${#end_match}
+# wd_len=${#wd}
+# i=$((wd_len-end_match_len))
+# 
+# if [[ "${wd:$i}" != "sv/files" ]]; then
+#     echo "Error: must run the test from the sv/files directory" >&2
+#     exit 1
+# fi
+# 
+# . ns delete wd end_match end_match_len wd_len i
+# 
+# mkdir -p sv_test
+# cp ../test/data.csv sv_test/
+# echo > sv_test/data2.csv
+# 
+# mkdir -p sv_project
+# touch sv_project/backlog.csv
+# cp sv_project/backlog.csv ../project_backlog.csv
+# 
+# sv_file=sv_test/data.csv
 
-if [[ "${wd:$i}" != "sv/files" ]]; then
-    echo "Error: must run the test from the sv/files directory" >&2
-    exit 1
-fi
+test_csv_file="${BASH_SOURCE[0]}"
+test_dir="${test_csv_file%/*}"
 
-. ns delete wd end_match end_match_len wd_len i
+virtual_csv=$(cat "${test_dir}/data.csv")
+virtual_csv="virtual://${virtual_csv}"
 
-mkdir -p sv_test
-cp ../test/data.csv sv_test/
-echo > sv_test/data2.csv
+max_min=`sqlite3 :memory: <<EOF
+create table data(num integer,name,column_data,is_multiline);
+.mode csv
+.import --csv --skip 1 "${test_dir}/data.csv" data
+.mode list
+select min(num),max(num) from data;
+EOF
+`
 
-mkdir -p sv_project
-touch sv_project/backlog.csv
-cp sv_project/backlog.csv ../project_backlog.csv
+max_min=$(echo "${max_min}")
+min=$(echo "$max_min" | cut -d "|" -f1)
+max=$(echo "$max_min" | cut -d "|" -f2)
 
-sv_file=sv_test/data.csv
-sv_num=1
-. ns run load
-test="Row ${sv_num} Load Test - ${sv_name}..."
-f1=$(echo "$sv_column_data" | cut -d ',' -f1 | cut -d '"' -f 2)
-f2=$(echo "$sv_column_data" | cut -d ',' -f2)
-f3=$(echo "$sv_column_data" | cut -d ',' -f3 | cut -d '"' -f 1)
-f="${f1}${f2}${f3}"  # abc
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
+for ((i=min;i<=max;i++)); do
+    # Uncomment if statement and assign a number based on which test to run (individually):
+    # if [[ $i -ne 5 ]]; then
+    #     continue
+    # fi
+    res=`sqlite3 :memory: <<EOF
+create table data(num,name,column_data,is_multiline);
+.mode csv
+.import --csv --skip 1 "${test_dir}/data.csv" data
+.mode list
+select name,is_multiline from data where num='${i}';
+EOF
+`
+    res_name=$(echo "$res" | cut -d "|" -f1)
+    res_is_multiline=$(echo "$res" | cut -d "|" -f2)
 
-. ns delete sv_name sv_column_data sv_is_multiline
+    res_column_data=`sqlite3 :memory: <<EOF
+create table data(num,name,column_data,is_multiline);
+.mode csv
+.import --csv --skip 1 "${test_dir}/data.csv" data
+.mode list
+select column_data||'END' column_data from data where num='${i}';
+EOF
+`
+    res_column_data_len=${#res_column_data}; ((res_column_data_len-=3))
+    res_column_data="${res_column_data:0:$res_column_data_len}"
 
-((sv_num++))
-. ns run load
-test="Row ${sv_num} Load Test - ${sv_name}..."
-wcl=$(echo "$sv_column_data" | wc -l)
-# load should not include the surrounding quotes
-# they will be added back in automatically on save
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-((sv_num++))
-. ns run load
-test="Row ${sv_num} Load Test - ${sv_name}..."
-enddex=${#sv_column_data}; ((enddex--))
-wcl=$(echo "$sv_column_data" | wc -l)
-enddex1=$(echo "$sv_column_data" | head -1 | wc -c); ((enddex1-=2))  # -1 and -1 newline
-eol1="${sv_column_data:$enddex1:1}" # last char of first line should have comma
-if [[ -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 || "$eol1" != "," ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-4
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-5
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-6
-
-. ns delete sv_name sv_column_data sv_is_multiline
-sv_file=sv_test/data2.csv
-sv_num=1
-. ns run load
-sv_column_data="x,y,z"
-. ns run save
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Save Test - ${sv_name}..."
-f1=$(echo "$sv_column_data" | cut -d ',' -f1)
-f2=$(echo "$sv_column_data" | cut -d ',' -f2)
-f3=$(echo "$sv_column_data" | cut -d ',' -f3)
-f="${f1}${f2}${f3}"  # xyz
-if [[ "$sv_column_data" != 'x,y,z' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-((sv_num++))
-sv_file=sv_test/data2.csv
-. ns run load
-sv_column_data=$'World\nHello' # swap lines
-. ns run save
-. ns delete sv_name sv_column_data sv_is_multiline
-. ns run load
-test="Row ${sv_num} Save Test - ${sv_name}..."
-enddex=${#sv_column_data}; ((enddex--))
-wcl=$(echo "$sv_column_data" | wc -l)
-if [[ "$sv_column_data" != $'World\nHello' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || $wcl -ne 2 ]]; then
-    echo "${test}...FAIL"
-else
-    echo "${test}...PASS"
-fi
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-. ns run test-csv-9
-
-. ns delete sv_name sv_column_data sv_is_multiline
-
-sv_num=3; ((sv_num++))
-sv_file=sv_test/data.csv
-num=4
-vals=',,,"{sv_qt}{sv_qt}","{sv_qt}{sv_nl}","{sv_qt}{sv_sep}"'
-expect=
-cs=10
-
-while [[ $num -lt 7 ]]
-do
-    sv_num="$num"
+    # LOOP ITERATION - LOAD TEST
+    test="Row ${i} Load Test - ${res_name}..."
+    sv_num="${i}"
+    sv_file="$virtual_csv"
     . ns run load
-
-    expect=$(echo "$vals" | cut -d , -f${num})
-    test="CS${cs} - Load Test - ${sv_name}..."  # [C]sv-spec [S]cenario
-
-    # put expected data through (partial save) pipeline to get
-    # single line row symbol syntax for test comparison
-    
-    svns_rc="$sv_column_data"
-    svns_nl_repl=0  # 1 puts in '\n' as text, whereas 0 keeps an actual newline
-    . ns run sv-sep-sub-rc-escape  # surrounds with quotes, doubles inner content quotes, etc
-
-    svns_sub="$svns_rc_subst"
-    . ns run sv-sep-sub  # replaces with symbols (e.g., {sv_qt})
-
-    # end (partial save) pipeline
-
-    if [[ "$expect" != "$svns_sub" ]]; then
+    # echo "[[${res_column_data}]]"
+    # echo "VS:"
+    # echo "[[${sv_column_data}]]"
+    if [[ -z "$sv_name" || "$sv_name" != "$res_name"  || ${sv_is_multiline} -ne ${res_is_multiline} || ${sv_num} -ne ${i} || "${sv_column_data}" != "${res_column_data}" ]]; then
         echo "${test}...FAIL"
     else
         echo "${test}...PASS"
     fi
-    ((cs++))
-    ((num++))
-    . ns delete svns_rc svns_nl_repl svns_rc_subst svns_sub sv_name sv_column_data sv_is_multiline
+    # res* vars are used in addtl. tests (deleted at the end of each iteration)
+    . ns delete sv_file sv_num sv_name sv_is_multiline sv_column_data sv_row
+    . ns delete test
+
+    # LOOP ITERATION - ADD TEST
+    test="Row ${i} Add Test - ${res_name}..."
+    sv_file="$virtual_csv"
+    sv_num="${i}"
+    . ns run load        # loads in all sv_vars needed
+    . ns delete sv_row
+    sv_file="virtual://num,name,column_data,is_multiline" # adding it to a new (blank file)
+    . ns run add
+    . ns delete sv_name sv_column_data sv_is_multiline  # deleting, to make sure it can retrieve
+    #                                                   # solely from the assigned sv_num value
+    . ns run load
+    if [[ -z "$sv_name" || "$sv_name" != "$res_name"  || ${sv_is_multiline} -ne ${res_is_multiline} || ${sv_num} -ne ${i} || "${sv_column_data}" != "${res_column_data}" ]]; then
+        echo "${test}...FAIL"
+    else
+        echo "${test}...PASS"
+    fi
+    . ns delete sv_file sv_num sv_name sv_is_multiline sv_column_data sv_row
+    . ns delete test
+
+    # LOOP ITERATION - SAVE TEST
+    sv_file="$virtual_csv"  # operate on this particular row of the file
+    sv_num=$i
+    . ns run load
+    sv_column_data="x,y,z"
+    . ns run save
+    . ns delete sv_name sv_column_data sv_is_multiline
+    . ns run load
+    test="Row ${i} Save Test - ${res_name}..."
+    f1=$(echo "$sv_column_data" | cut -d ',' -f1)
+    f2=$(echo "$sv_column_data" | cut -d ',' -f2)
+    f3=$(echo "$sv_column_data" | cut -d ',' -f3)
+    f="${f1}${f2}${f3}"  # xyz
+    if [[ "$sv_column_data" != 'x,y,z' || -z "$sv_name" || ${#sv_is_multiline} -ne 1 || ${#f} -ne 3 ]]; then
+        echo "${test}...FAIL"
+    else
+        echo "${test}...PASS"
+    fi
+
+    . ns delete sv_file sv_num sv_name sv_is_multiline sv_column_data sv_row
+    . ns delete test
+
+    . ns delete res res_name res_is_multiline res_column_data res_column_data_len
 done
 
-. ns delete num vals expect
-
-. ns delete "sv_*"
+. ns delete sv_sep
 
