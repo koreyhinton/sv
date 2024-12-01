@@ -11,20 +11,24 @@ sv_upper=A
 
 sv_letter=a
 sv_upper=A
+
 . ns run load
 sv_letter=c
 sv_upper=C
 . ns run add
+# echo "$sv_row"
 sv_letter=b # fix the skipped letter
 sv_upper=B # fix the skipped letter
 . ns run save # bug used to wrongly replace A->B instead of C->B
-last=$(tail -1 sv_test/user-scenarios.csv)
+. ns run sv-cat
+last=$(echo "$sv_cat" | tail -1)
+. ns delete sv_cat
 test="US1 - Load Then Add Updates Row Number Test"
 # . ns run print
-if [[ "$last" != "b,B" && "$last" != "B,b" ]]; then
-    echo "${test}...FAIL"
-else
+if [[ "$last" == "b,B" || "$last" == "B,b" ]]; then
     echo "${test}...PASS"
+else
+    echo "${test}...FAIL"
 fi
 
 . ns delete last sv_letter sv_upper test

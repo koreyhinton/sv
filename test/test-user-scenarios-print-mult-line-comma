@@ -34,8 +34,9 @@ exp="${exp} | a,  |${nl}"
 exp="${exp} | b   |${nl}"
 exp="${exp} +-----+${nl}"
 
-sv_file="sv_test/user-scenarios-print-mult-line-comma.csv"
-echo "${csv}" > "$sv_file"
+# sv_file="sv_test/user-scenarios-print-mult-line-comma.csv"
+# echo "${csv}" > "$sv_file"
+sv_file="virtual://${csv}"
 export SV_VERBOSE=0
 actual="$(. ns run print)"$'\n'
 expect="${exp}"
