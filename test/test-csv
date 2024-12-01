@@ -30,7 +30,7 @@ virtual_csv=$(cat "${test_dir}/data.csv")
 virtual_csv="virtual://${virtual_csv}"
 
 max_min=`sqlite3 :memory: <<EOF
-create table data(num,name,column_data,is_multiline);
+create table data(num integer,name,column_data,is_multiline);
 .mode csv
 .import --csv --skip 1 "${test_dir}/data.csv" data
 .mode list
@@ -39,7 +39,6 @@ EOF
 `
 
 max_min=$(echo "${max_min}")
-
 min=$(echo "$max_min" | cut -d "|" -f1)
 max=$(echo "$max_min" | cut -d "|" -f2)
 

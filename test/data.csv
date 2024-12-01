@@ -8,3 +8,13 @@ World",Y
 5,escaped double quote and newline,"""
 ",Y
 6,escaped double quote and delimiter,""",",N
+7,escaped delimiters with double quotes,"a,b,c""",N
+8,multi-line phrase with double quotes,"Hello
+World""",Y
+9,multi-line phrase with escaped delimiter with double quotes,"Hello,
+World""",Y
+10,double quotes with escaped delimiters,"""a,b,c",N
+11,double quotes with multi-line phrase,"""Hello
+World",Y
+12,double quotes with multi-line phrase with escaped delimiter,"""Hello,
+World",Y
