@@ -16,7 +16,7 @@ IFS=$'\n'
 for var_val in $setvals
 do
     v=$(echo "$var_val" | cut -d "=" -f1)
-    if [[ "$v" == "sv_file" || "$v" == "sv_row" || "$v" == "sv_sep" ]]; then
+    if [[ "$v" == "sv_file" || "$v" == "sv_row" || "$v" == "sv_sep" || "$v" == "sv_filter" ]]; then
         if [[ "$special" == " {" ]]; then
             special="${special}${var_val}"
         else
