@@ -96,10 +96,10 @@ do
     # in order to load it to memory
     for svns_name in $vars
     do
-        if [[ "$svns_name" == "sv_file" || "$svns_name" == "sv_sep" || "$svns_name" == "sv_row" || "$svns_name" == "sv_cat" ]]; then
+        if [[ "$svns_name" == "sv_file" || "$svns_name" == "sv_sep" || "$svns_name" == "sv_row" || "$svns_name" == "sv_cat" || "$svns_name" == "sv_filter" ]]; then
             continue
         fi
-
+        # echo "will match(${svns_name})"
         svfn_match_name="$svns_name"
         val="${!svns_name}"
         svns_rc="$val"
